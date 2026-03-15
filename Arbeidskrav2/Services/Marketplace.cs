@@ -45,26 +45,46 @@ public class Marketplace
         loggedInUser = user;
         return "Logged in success";
     }
+    
+    private string CheckIfLoggedIn()
+    {
+        if (loggedInUser == null)
+            return "You must be logged in";
+        return null;
+    }
 
     public string Logout()
     {
-        if (loggedInUser  != null)
         {
             loggedInUser = null;
             return  "Logged out success";
         }
-        return "Please log in";
     }
 
     public string CreateListing(string name, string description, double price, Category category, Condition condition)
     {
-        if (loggedInUser == null)
-            return "You must be logged in to create a listing";
+        string error = CheckIfLoggedIn();
+        if (error != null)
+            return error;
 
         Listing listing = new Listing(name, description, price, category, condition, loggedInUser);
         listings.Add(listing);
         loggedInUser.AddListing(listing);
         return "Listing added successfully";
+    }
+    
+    private string CheckIfAvailable(Listing listing)
+    {
+        if (listing.Status != ListingStatus.Available)
+            return "This listing is not available";
+        return null;
+    }
+
+    private string CheckIfSeller(Listing listing)
+    {
+        if (listing.Seller == loggedInUser)
+            return "You cannot buy your own listing";
+        return null;
     }
 
     public List<Listing> GetListings()
@@ -81,6 +101,7 @@ public class Marketplace
     {
         return listings.Where(l => l.Category == category).ToList();
     }
+    
 }
 
 
