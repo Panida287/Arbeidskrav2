@@ -31,5 +31,10 @@ namespace Arbeidskrav2.Models
         {
             listings.Add(listing);
         }
+
+        public void AddTransaction(Transaction transaction)
+        {
+            transactions.Add(transaction);
+        }
     }
 }

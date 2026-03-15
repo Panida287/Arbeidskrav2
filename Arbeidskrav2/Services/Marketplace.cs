@@ -101,7 +101,22 @@ public class Marketplace
     {
         return listings.Where(l => l.Category == category).ToList();
     }
+
+    public string Purchase(Listing listing)
+    {
+        string error = CheckIfLoggedIn() 
+                       ?? CheckIfAvailable(listing) 
+                       ?? CheckIfSeller(listing);
     
+        if (error != null)
+            return error;
+        listing.Status = ListingStatus.Sold;
+        Transaction transaction = new Transaction(listing, loggedInUser, listing.Seller);
+        loggedInUser.AddTransaction(transaction);
+        transactions.Add(transaction);
+        listing.Seller.AddTransaction(transaction);
+        return "Item successfully purchased";
+    }
 }
 
 
