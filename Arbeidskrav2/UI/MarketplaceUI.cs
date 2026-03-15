@@ -182,9 +182,12 @@ public class MarketplaceUI
             return;
         }
         
+        Console.WriteLine($"{"#",-5} {"Title",-20} {"Category",-15} {"Condition",-12} {"Price"}");
+        Console.WriteLine(new string('-', 60));
+        
         for (int i = 0; i < availableListings.Count; i++)
         {
-            Console.WriteLine($"{i + 1}. {availableListings[i].ItemName} - {availableListings[i].ItemPrice} kr");
+            Console.WriteLine($"{i + 1,-5} {availableListings[i].ItemName,-20} {availableListings[i].Category,-15} {availableListings[i].Condition,-12} {availableListings[i].ItemPrice:N0} kr");
         }
         
         while (true)
