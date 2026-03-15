@@ -26,5 +26,10 @@ namespace Arbeidskrav2.Models
         {
             return password == input;
         }
+        
+        public void AddListing(Listing listing)
+        {
+            listings.Add(listing);
+        }
     }
 }

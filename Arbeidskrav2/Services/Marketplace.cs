@@ -1,3 +1,4 @@
+using Arbeidskrav2.Enums;
 using Arbeidskrav2.Models;
 
 namespace Arbeidskrav2.Services;
@@ -53,6 +54,17 @@ public class Marketplace
             return  "Logged out success";
         }
         return "Please log in";
+    }
+
+    public string CreateListing(string name, string description, double price, Category category, Condition condition)
+    {
+        if (loggedInUser == null)
+            return "You must be logged in to create a listing";
+
+        Listing listing = new Listing(name, description, price, category, condition, loggedInUser);
+        listings.Add(listing);
+        loggedInUser.AddListing(listing);
+        return "Listing added successfully";
     }
 }
 
