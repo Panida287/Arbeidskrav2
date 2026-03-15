@@ -120,7 +120,7 @@ public class MarketplaceUI
                     ViewMarketplace(); //TODO write this method
                     break;
                 case "2":
-                    ViewProfile(); //TODO write this method
+                    //ViewProfile(); //TODO write this method
                     break;
                 case "3":
                     string result = marketplace.Logout();
@@ -157,7 +157,7 @@ public class MarketplaceUI
                     BrowseByCategory(); //TODO write this method
                     break;
                 case "3":
-                    SearchListing(); //TODO write this method
+                    //SearchListing(); //TODO write this method
                     break;
                 case "4":
                     ShowLoggedInMenu();
@@ -168,43 +168,49 @@ public class MarketplaceUI
             }
         }
     }
+    
+    private void ShowListingsAndSelect(List<Listing> listings)
+    {
+        if (listings.Count == 0)
+        {
+            Console.WriteLine("No listings available. Press any key to go back.");
+            Console.ReadKey();
+            return;
+        }
+
+        Console.WriteLine($"{"#",-5} {"Title",-20} {"Category",-15} {"Condition",-12} {"Price"}");
+        Console.WriteLine(new string('-', 60));
+
+        for (int i = 0; i < listings.Count; i++)
+        {
+            Console.WriteLine($"{i + 1,-5} {listings[i].ItemName,-20} {listings[i].Category,-15} {listings[i].Condition,-12} {listings[i].ItemPrice:N0} kr");
+        }
+
+        Console.WriteLine("\n0. Go back");
+
+        while (true)
+        {
+            Console.Write("Select a listing to view: ");
+            string input = Console.ReadLine();
+
+            if (input == "0") return;
+
+            if (int.TryParse(input, out int index) && index >= 1 && index <= listings.Count)
+            {
+                ShowListingDetails(listings[index - 1]);
+                return;
+            }
+
+            Console.WriteLine("Invalid selection, try again!");
+        }
+    }
 
     public void ShowAllListing()
     {
         List<Listing> availableListings = marketplace.GetListings();
         Console.Clear();
         Console.WriteLine("=== Available Listings ===");
-
-        if (availableListings.Count == 0)
-        {
-            Console.WriteLine("No available listings. press any key to go back");
-            Console.ReadKey();
-            return;
-        }
-        
-        Console.WriteLine($"{"#",-5} {"Title",-20} {"Category",-15} {"Condition",-12} {"Price"}");
-        Console.WriteLine(new string('-', 60));
-        
-        for (int i = 0; i < availableListings.Count; i++)
-        {
-            Console.WriteLine($"{i + 1,-5} {availableListings[i].ItemName,-20} {availableListings[i].Category,-15} {availableListings[i].Condition,-12} {availableListings[i].ItemPrice:N0} kr");
-        }
-        
-        while (true)
-        {
-            Console.Write("Select a listing to view: ");
-            string input = Console.ReadLine();
-    
-            if (input == "0") return;
-    
-            if (int.TryParse(input, out int index) && index >= 1 && index <= availableListings.Count)
-            {
-                ShowListingDetails(availableListings[index - 1]);
-                break;
-            }
-    
-            Console.WriteLine("Invalid selection, try again!");
-        }
+        ShowListingsAndSelect(availableListings);
     }
     
     public void ShowListingDetails(Listing listing)
@@ -240,6 +246,41 @@ public class MarketplaceUI
             default:
                 Console.WriteLine("Invalid option!");
                 break;
+        }
+    }
+
+    public void BrowseByCategory()
+    {
+        Console.Clear();
+        Console.WriteLine("=== Browse by Category ===");
+
+        Category[] categories = (Category[])Enum.GetValues(typeof(Category));
+
+        for (int i = 0; i < categories.Length; i++)
+        {
+            int count = marketplace.GetListingsByCategory(categories[i]).Count;
+            Console.WriteLine($"{i + 1,-5} {categories[i],-20} ({count} items)");
+        }
+
+        Console.WriteLine("\n0. Go back");
+
+        while (true)
+        {
+            Console.Write("Select a category: ");
+            string input = Console.ReadLine();
+
+            if (input == "0") return;
+
+            if (int.TryParse(input, out int index) && index >= 1 && index <= categories.Length)
+            {
+                Category selected = categories[index - 1];
+                List<Listing> categoryListings = marketplace.GetListingsByCategory(selected);
+                Console.WriteLine($"\n=== {selected} Listings ===");
+                ShowListingsAndSelect(categoryListings);
+                return;
+            }
+
+            Console.WriteLine("Invalid selection, try again!");
         }
     }
 }
