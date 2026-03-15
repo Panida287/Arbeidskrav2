@@ -1,3 +1,5 @@
+using Arbeidskrav2.Enums;
+using Arbeidskrav2.Models;
 using Arbeidskrav2.Services;
 
 namespace Arbeidskrav2.UI;
@@ -164,6 +166,41 @@ public class MarketplaceUI
                     Console.WriteLine("Invalid option, try again!");
                     break;
             }
+        }
+    }
+
+    public void ShowAllListing()
+    {
+        List<Listing> availableListings = marketplace.GetListings();
+        Console.Clear();
+        Console.WriteLine("=== Available Listings ===");
+
+        if (availableListings.Count == 0)
+        {
+            Console.WriteLine("No available listings. press any key to go back");
+            Console.ReadKey();
+            return;
+        }
+        
+        for (int i = 0; i < availableListings.Count; i++)
+        {
+            Console.WriteLine($"{i + 1}. {availableListings[i].ItemName} - {availableListings[i].ItemPrice} kr");
+        }
+        
+        while (true)
+        {
+            Console.Write("Select a listing to view: ");
+            string input = Console.ReadLine();
+    
+            if (input == "0") return;
+    
+            if (int.TryParse(input, out int index) && index >= 1 && index <= availableListings.Count)
+            {
+                ShowListingDetails(availableListings[index - 1]);
+                break;
+            }
+    
+            Console.WriteLine("Invalid selection, try again!");
         }
     }
 }
