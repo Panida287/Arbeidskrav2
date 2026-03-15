@@ -62,15 +62,15 @@ public class MarketplaceUI
     public void Register()
     {
         Console.Clear();
-        Console.WriteLine("Enter your name: ");  // TODO add char condition
+        Console.Write("Enter your name: ");  // TODO add char condition
         string name = Console.ReadLine();
 
-        Console.WriteLine("Enter your password: "); // TODO add char condition
+        Console.Write("Enter your password: "); // TODO add char condition
         string password = ReadPassword();
         
         while (true)
         {
-            Console.WriteLine("Repeat your password: ");
+            Console.Write("Repeat your password: ");
             string passwordRepeat = ReadPassword();  // TODO add char condition
 
             if (password == passwordRepeat)
@@ -82,4 +82,21 @@ public class MarketplaceUI
         string result = marketplace.Register(name, password);
         Console.WriteLine(result);
     }
+
+    public void Login()
+    {
+        Console.Clear();
+        Console.Write("Enter username: ");
+        string name = Console.ReadLine();
+        
+        Console.Write("Enter password: ");
+        string password = ReadPassword();
+        
+        string result = marketplace.Login(name, password);
+        Console.WriteLine(result);
+        
+        if (result == "Logged in success")
+            ShowLoggedInMenu(); //TODO write this method
+    }
+    
 }
