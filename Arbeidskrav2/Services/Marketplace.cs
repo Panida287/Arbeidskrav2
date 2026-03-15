@@ -76,6 +76,11 @@ public class Marketplace
     {
         return listings.Where(l => l.ItemName.Contains(searchTerm) || l.ItemDescription.Contains(searchTerm)).ToList();
     }
+
+    public List<Listing> GetListingsByCategory(Category category)
+    {
+        return listings.Where(l => l.Category == category).ToList();
+    }
 }
 
 
