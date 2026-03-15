@@ -98,5 +98,38 @@ public class MarketplaceUI
         if (result == "Logged in success")
             ShowLoggedInMenu(); //TODO write this method
     }
+    public void ShowLoggedInMenu()
+    {
+        while (true)
+        {
+            Console.Clear();
+            
+            Console.WriteLine($"Welcome, {marketplace.LoggedInUser.Username}! What would you like to do?");
+            Console.WriteLine("1. Enter marketplace");
+            Console.WriteLine("2. View my profile");
+            Console.WriteLine("3. Logout");
+            Console.Write("Select an option: ");
+        
+            string choice = Console.ReadLine();
+        
+            switch (choice)
+            {
+                case "1":
+                    Console.Clear();
+                    ViewMarketpace(); //TODO write this method
+                    break;
+                case "2":
+                    ViewProfile(); //TODO write this method
+                    break;
+                case "3":
+                    string result = marketplace.Logout();
+                    Console.WriteLine(result);
+                    return;
+                default:
+                    Console.WriteLine("Invalid option, try again!");
+                    break;
+            }
+        }
+    }
     
 }
