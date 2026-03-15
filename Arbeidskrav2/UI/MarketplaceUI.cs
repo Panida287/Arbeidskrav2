@@ -103,7 +103,6 @@ public class MarketplaceUI
         while (true)
         {
             Console.Clear();
-            
             Console.WriteLine($"Welcome, {marketplace.LoggedInUser.Username}! What would you like to do?");
             Console.WriteLine("1. Enter marketplace");
             Console.WriteLine("2. View my profile");
@@ -116,7 +115,7 @@ public class MarketplaceUI
             {
                 case "1":
                     Console.Clear();
-                    ViewMarketpace(); //TODO write this method
+                    ViewMarketplace(); //TODO write this method
                     break;
                 case "2":
                     ViewProfile(); //TODO write this method
@@ -131,5 +130,40 @@ public class MarketplaceUI
             }
         }
     }
-    
+
+    public void ViewMarketplace()
+    {
+        while (true)
+        {
+            Console.Clear();
+            Console.WriteLine("== Welcome to marketplace ==!");
+            Console.WriteLine("1. Browse all listings");
+            Console.WriteLine("2. Browse by category");
+            Console.WriteLine("3. Search listings");
+            Console.WriteLine("4. Go back");
+            Console.Write("Select an option: ");
+        
+            string choice = Console.ReadLine();
+        
+            switch (choice)
+            {
+                case "1":
+                    Console.Clear();
+                    ShowAllListing(); //TODO write this method
+                    break;
+                case "2":
+                    BrowseByCategory(); //TODO write this method
+                    break;
+                case "3":
+                    SearchListing(); //TODO write this method
+                    break;
+                case "4":
+                    ShowLoggedInMenu();
+                    return;
+                default:
+                    Console.WriteLine("Invalid option, try again!");
+                    break;
+            }
+        }
+    }
 }
