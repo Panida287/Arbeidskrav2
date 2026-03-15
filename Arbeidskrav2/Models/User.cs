@@ -21,5 +21,10 @@ namespace Arbeidskrav2.Models
         public List<Listing> Listings { get => listings; }
         public List<Transaction> Transactions { get => transactions; }
         public List<Review> Reviews { get => reviews; }
+
+        public bool CheckPassword(string input)
+        {
+            return password == input;
+        }
     }
 }
