@@ -1,6 +1,6 @@
 namespace Arbeidskrav2.Models
 {
-    class User
+    public class User
     {
         private string username;
         private string password;

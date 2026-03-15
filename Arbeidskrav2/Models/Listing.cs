@@ -2,7 +2,7 @@ using Arbeidskrav2.Enums;
 
 namespace Arbeidskrav2.Models
 {
-    class Listing
+    public class Listing
     {
         private static int nextId = 1;
         private int itemId;
