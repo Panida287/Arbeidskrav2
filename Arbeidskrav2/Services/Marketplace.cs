@@ -42,7 +42,17 @@ public class Marketplace
             return "Incorrect password";
     
         loggedInUser = user;
-        return "Success";
+        return "Logged in success";
+    }
+
+    public string Logout()
+    {
+        if (loggedInUser  != null)
+        {
+            loggedInUser = null;
+            return  "Logged out success";
+        }
+        return "Please log in";
     }
 }
 
