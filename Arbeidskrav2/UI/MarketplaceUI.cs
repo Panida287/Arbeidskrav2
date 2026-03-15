@@ -203,4 +203,40 @@ public class MarketplaceUI
             Console.WriteLine("Invalid selection, try again!");
         }
     }
+    
+    public void ShowListingDetails(Listing listing)
+    {
+        Console.Clear();
+        Console.WriteLine($"=== {listing.ItemName} ===");
+        Console.WriteLine($"{"Seller:",-15} {listing.Seller.Username}");
+        Console.WriteLine($"{"Category:",-15} {listing.Category}");
+        Console.WriteLine($"{"Condition:",-15} {listing.Condition}");
+        Console.WriteLine($"{"Price:",-15} {listing.ItemPrice:N0} kr");
+        Console.WriteLine($"{"Description:",-15} {listing.ItemDescription}");
+        
+        Console.WriteLine("\n1. Buy this item");
+        Console.WriteLine("0. Go back");
+        Console.Write("Select an option: ");
+
+        string choice = Console.ReadLine();
+
+        switch (choice)
+        {
+            case "1":
+                Console.Write("Are you sure you want to buy this item? (y/n): ");
+                string confirm = Console.ReadLine().ToLower();
+                if (confirm == "y")
+                {
+                    string result = marketplace.Purchase(listing);
+                    Console.WriteLine(result);
+                    Console.ReadKey();
+                }
+                break;
+            case "0":
+                return;
+            default:
+                Console.WriteLine("Invalid option!");
+                break;
+        }
+    }
 }
