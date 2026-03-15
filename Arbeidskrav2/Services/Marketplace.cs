@@ -86,6 +86,20 @@ public class Marketplace
             return "You cannot buy your own listing";
         return null;
     }
+    
+    private string CheckIfBuyer(Transaction transaction)
+    {
+        if (transaction.Buyer != loggedInUser)
+            return "You can only review your own purchases";
+        return null;
+    }
+
+    private string CheckIfReviewed(Transaction transaction)
+    {
+        if (transaction.Review != null)
+            return "You have already reviewed this transaction";
+        return null;
+    }
 
     public List<Listing> GetListings()
     {
@@ -116,6 +130,21 @@ public class Marketplace
         transactions.Add(transaction);
         listing.Seller.AddTransaction(transaction);
         return "Item successfully purchased";
+    }
+
+    public string WriteReview(Transaction transaction, int score, string reviewText)
+    {
+        string error = CheckIfLoggedIn()
+                       ?? CheckIfBuyer(transaction)
+                       ?? CheckIfReviewed(transaction);
+    
+        if (error != null)
+            return error;
+
+        Review review = new Review(score, reviewText, loggedInUser, transaction.Seller, transaction.Listing);
+        transaction.AddReview(review);
+        transaction.Seller.AddReview(review);
+        return "Review submitted successfully";
     }
 }
 

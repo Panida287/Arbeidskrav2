@@ -36,5 +36,11 @@ namespace Arbeidskrav2.Models
         {
             transactions.Add(transaction);
         }
+
+        public void AddReview(Review review)
+        {
+            reviews.Add(review);
+        }
+        
     }
 }
