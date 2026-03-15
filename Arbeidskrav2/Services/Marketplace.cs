@@ -66,6 +66,11 @@ public class Marketplace
         loggedInUser.AddListing(listing);
         return "Listing added successfully";
     }
+
+    public List<Listing> GetListings()
+    {
+        return  listings.Where(l => l.Status == ListingStatus.Available).ToList();
+    }
 }
 
 
