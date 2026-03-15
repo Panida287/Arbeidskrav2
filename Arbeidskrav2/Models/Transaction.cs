@@ -1,6 +1,6 @@
 namespace Arbeidskrav2.Models
 {
-    class Transaction
+    public class Transaction
     {
         private static int nextId = 1;
         private int transactionId;

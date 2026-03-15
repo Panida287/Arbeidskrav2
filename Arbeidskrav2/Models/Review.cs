@@ -1,6 +1,6 @@
 namespace Arbeidskrav2.Models
 {
-    class Review
+    public class Review
     {
         private User buyer;
         private User seller;
