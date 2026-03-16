@@ -352,64 +352,67 @@ public class MarketplaceUI
 
     public void ViewProfile()
     {
-        double averageRating = marketplace.LoggedInUser.Reviews.Any()
-            ? marketplace.LoggedInUser.Reviews.Average(r => r.ReviewScore)
-            : 0;
-
-        string stars = GetStarRating(averageRating);
-        
-        List<Listing> myListings = marketplace.LoggedInUser.Listings;
-        List<Transaction> myPurchases = marketplace.LoggedInUser.Transactions
-            .Where(t => t.Buyer == marketplace.LoggedInUser)
-            .ToList();
-        List<Transaction> mySales = marketplace.LoggedInUser.Transactions
-            .Where(t => t.Seller == marketplace.LoggedInUser)
-            .ToList();
-        List<Review> reviews =  marketplace.LoggedInUser.Reviews;
-        
-        Console.Clear();
-        Console.WriteLine($"===Profile: {marketplace.LoggedInUser.Username}===");
-        Console.WriteLine($"Average Rating: {stars} ({averageRating}/6)");
-        Console.WriteLine();
-        Console.WriteLine($"{"1. My Listings:",-20} ({(myListings.Count)})");
-        Console.WriteLine($"{"2. My Purchases",-20} ({(myPurchases.Count)})");
-        Console.WriteLine($"{"3. Listings Sold",-20} ({(mySales.Count)})");
-        Console.WriteLine($"{"4. Reviews Received",-20} ({(reviews.Count)})");
-        Console.WriteLine("5. Create New Listing");
-        Console.WriteLine("6. Go back");
-        Console.WriteLine("0. Logout");
-        Console.Write("Select an option : ");
-        
-        string choice = Console.ReadLine();
-
-        switch (choice)
+        while (true)
         {
-            case "0":
-                string result = marketplace.Logout();
-                Console.WriteLine(result);
-                return;
-            case "1":
-                Console.Clear();
-                ShowListingsAndSelect(myListings);
-                break;
-            case "2":
-                Console.Clear();
-                ShowTransactions(myPurchases, "Seller");
-                break;
-            case "3":
-                Console.Clear();
-                ShowTransactions(mySales, "Buyer");
-                break;
-            case "4":
-                Console.Clear();
-                ShowReviews(reviews);
-                break;
-            case "5":
-                Console.Clear();
-                // CreateListing();
-                break;
-            case "6":
-                return;
+            double averageRating = marketplace.LoggedInUser.Reviews.Any()
+                ? marketplace.LoggedInUser.Reviews.Average(r => r.ReviewScore)
+                : 0;
+
+            string stars = GetStarRating(averageRating);
+
+            List<Listing> myListings = marketplace.LoggedInUser.Listings;
+            List<Transaction> myPurchases = marketplace.LoggedInUser.Transactions
+                .Where(t => t.Buyer == marketplace.LoggedInUser)
+                .ToList();
+            List<Transaction> mySales = marketplace.LoggedInUser.Transactions
+                .Where(t => t.Seller == marketplace.LoggedInUser)
+                .ToList();
+            List<Review> reviews = marketplace.LoggedInUser.Reviews;
+
+            Console.Clear();
+            Console.WriteLine($"===Profile: {marketplace.LoggedInUser.Username}===");
+            Console.WriteLine($"Average Rating: {stars} ({averageRating}/6)");
+            Console.WriteLine();
+            Console.WriteLine($"{"1. My Listings:",-20} ({(myListings.Count)})");
+            Console.WriteLine($"{"2. My Purchases",-20} ({(myPurchases.Count)})");
+            Console.WriteLine($"{"3. Listings Sold",-20} ({(mySales.Count)})");
+            Console.WriteLine($"{"4. Reviews Received",-20} ({(reviews.Count)})");
+            Console.WriteLine("5. Create New Listing");
+            Console.WriteLine("6. Go back");
+            Console.WriteLine("0. Logout");
+            Console.Write("Select an option : ");
+
+            string choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "0":
+                    string result = marketplace.Logout();
+                    Console.WriteLine(result);
+                    return;
+                case "1":
+                    Console.Clear();
+                    ShowListingsAndSelect(myListings);
+                    break;
+                case "2":
+                    Console.Clear();
+                    ShowTransactions(myPurchases, "Seller");
+                    break;
+                case "3":
+                    Console.Clear();
+                    ShowTransactions(mySales, "Buyer");
+                    break;
+                case "4":
+                    Console.Clear();
+                    ShowReviews(reviews);
+                    break;
+                case "5":
+                    Console.Clear();
+                    // CreateListing();
+                    break;
+                case "6":
+                    return;
+            }
         }
     }
 }
