@@ -61,29 +61,66 @@ public class MarketplaceUI
         Console.WriteLine();
         return password;
     }
+    
+    private string ValidateUsername(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "Username cannot be empty";
+        if (name.Length < 3) return "Username must be at least 3 characters";
+        if (name.Length > 20) return "Username cannot exceed 20 characters";
+        return null;
+    }
+
+    private string ValidatePassword(string password)
+    {
+        if (password.Length != 4) return "Password must be exactly 4 digits";
+        if (!password.All(char.IsDigit)) return "Password must contain numbers only";
+        return null;
+    }
 
     public void Register()
     {
         Console.Clear();
-        Console.Write("Enter your name: "); // TODO add char condition
-        string name = Console.ReadLine();
+    
+        string name = "";
+        while (true)
+        {
+            Console.Write("Enter your username: ");
+            name = Console.ReadLine();
+            string error = ValidateUsername(name);
+            if (error == null) break;
+            Console.WriteLine(error);
+        }
 
-        Console.Write("Enter your password: "); // TODO add char condition
-        string password = ReadPassword();
+        string password = "";
+        while (true)
+        {
+            Console.Write("Enter your password (4 digits): ");
+            password = ReadPassword();
+            string error = ValidatePassword(password);
+            if (error == null) break;
+            Console.WriteLine(error);
+        }
 
         while (true)
         {
             Console.Write("Repeat your password: ");
-            string passwordRepeat = ReadPassword(); // TODO add char condition
-
+            string passwordRepeat = ReadPassword();
             if (password == passwordRepeat)
                 break;
             Console.WriteLine("Passwords don't match, try again!");
-            // TODO option to write new password
         }
 
-        string result = marketplace.Register(name, password);
-        Console.WriteLine(result);
+        try
+        {
+            string result = marketplace.Register(name, password);
+            Console.WriteLine(result);
+        }
+        catch (InvalidOperationException e)
+        {
+            Console.WriteLine(e.Message);
+        }
+    
+        Console.ReadKey();
     }
 
     public void Login()

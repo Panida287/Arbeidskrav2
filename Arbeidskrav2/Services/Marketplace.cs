@@ -17,17 +17,32 @@ public class Marketplace
         transactions = new List<Transaction>();
         loggedInUser = null;
     }
-    
-    public List<User> Users { get => users; }
-    public List<Listing> Listings { get => listings; }
-    public List<Transaction> Transactions { get => transactions; }
-    public User LoggedInUser { get => loggedInUser; }
+
+    public List<User> Users
+    {
+        get => users;
+    }
+
+    public List<Listing> Listings
+    {
+        get => listings;
+    }
+
+    public List<Transaction> Transactions
+    {
+        get => transactions;
+    }
+
+    public User LoggedInUser
+    {
+        get => loggedInUser;
+    }
 
     public string Register(string username, string password)
     {
         if (users.Any(u => u.Username == username))
-            return "Username already taken";
-    
+            throw new InvalidOperationException("Username already taken");
+
         users.Add(new User(username, password));
         return "User successfully registered";
     }
@@ -35,17 +50,17 @@ public class Marketplace
     public string Login(string username, string password)
     {
         User user = users.FirstOrDefault(u => u.Username == username);
-    
+
         if (user == null)
             return "Username not found";
-    
+
         if (!user.CheckPassword(password))
             return "Incorrect password";
-    
+
         loggedInUser = user;
         return "Logged in success";
     }
-    
+
     private string CheckIfLoggedIn()
     {
         if (loggedInUser == null)
@@ -57,7 +72,7 @@ public class Marketplace
     {
         {
             loggedInUser = null;
-            return  "Logged out success";
+            return "Logged out success";
         }
     }
 
@@ -72,7 +87,7 @@ public class Marketplace
         loggedInUser.AddListing(listing);
         return "Listing added successfully";
     }
-    
+
     private string CheckIfAvailable(Listing listing)
     {
         if (listing.Status != ListingStatus.Available)
@@ -86,7 +101,7 @@ public class Marketplace
             return "You cannot buy your own listing";
         return null;
     }
-    
+
     private string CheckIfBuyer(Transaction transaction)
     {
         if (transaction.Buyer != loggedInUser)
@@ -103,7 +118,7 @@ public class Marketplace
 
     public List<Listing> GetListings()
     {
-        return  listings.Where(l => l.Status == ListingStatus.Available).ToList();
+        return listings.Where(l => l.Status == ListingStatus.Available).ToList();
     }
 
     public List<Listing> SearchListings(string searchTerm)
@@ -118,10 +133,10 @@ public class Marketplace
 
     public string Purchase(Listing listing)
     {
-        string error = CheckIfLoggedIn() 
-                       ?? CheckIfAvailable(listing) 
+        string error = CheckIfLoggedIn()
+                       ?? CheckIfAvailable(listing)
                        ?? CheckIfSeller(listing);
-    
+
         if (error != null)
             return error;
         listing.Status = ListingStatus.Sold;
@@ -137,7 +152,7 @@ public class Marketplace
         string error = CheckIfLoggedIn()
                        ?? CheckIfBuyer(transaction)
                        ?? CheckIfReviewed(transaction);
-    
+
         if (error != null)
             return error;
 
@@ -146,8 +161,9 @@ public class Marketplace
         transaction.Seller.AddReview(review);
         return "Review submitted successfully";
     }
-    
-    public string EditListing(Listing listing, string name, string description, double price, Category category, Condition condition)
+
+    public string EditListing(Listing listing, string name, string description, double price, Category category,
+        Condition condition)
     {
         string error = CheckIfLoggedIn();
         if (error != null)
@@ -181,8 +197,4 @@ public class Marketplace
         loggedInUser.Listings.Remove(listing);
         return "Listing deleted successfully";
     }
-    
-    
 }
-
-
