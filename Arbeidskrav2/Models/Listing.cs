@@ -4,8 +4,6 @@ namespace Arbeidskrav2.Models
 {
     public class Listing
     {
-        private static int nextId = 1;
-        private int itemId;
         private string itemName;
         private string itemDescription;
         private double itemPrice;
@@ -16,7 +14,6 @@ namespace Arbeidskrav2.Models
         
         public Listing(string itemName, string itemDescription, double itemPrice, Category category, Condition condition, User user)
         {
-            itemId = nextId++;
             this.itemName = itemName;
             this.itemDescription = itemDescription;
             this.itemPrice = itemPrice;
@@ -26,7 +23,6 @@ namespace Arbeidskrav2.Models
             this.user = user;
         }
         
-        public int ItemId { get => itemId; }
         public string ItemName { get => itemName; set => itemName = value; }
         public string ItemDescription { get => itemDescription; set => itemDescription = value; }
         public double ItemPrice { get => itemPrice; set => itemPrice = value; }
