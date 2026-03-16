@@ -29,13 +29,13 @@ public class MarketplaceUI
             switch (choice)
             {
                 case "1":
-                    // TODO: call login menu
+                    Login();
                     break;
                 case "2":
                     Register();
                     break;
                 case "3":
-                    // TODO: browse as guest
+                    ViewMarketplace();
                     break;
                 default:
                     Console.WriteLine("Invalid option, try again!");
@@ -99,7 +99,7 @@ public class MarketplaceUI
         Console.WriteLine(result);
 
         if (result == "Logged in success")
-            ShowLoggedInMenu(); //TODO write this method
+            ShowLoggedInMenu();
     }
 
     public void ShowLoggedInMenu()
@@ -109,7 +109,7 @@ public class MarketplaceUI
             Console.Clear();
             Console.WriteLine($"Welcome, {marketplace.LoggedInUser.Username}! What would you like to do?");
             Console.WriteLine("1. Enter marketplace");
-            Console.WriteLine("2. View my profile");
+            Console.WriteLine("2. View my profile and manage listings");
             Console.WriteLine("3. Logout");
             Console.Write("Select an option: ");
 
@@ -119,10 +119,10 @@ public class MarketplaceUI
             {
                 case "1":
                     Console.Clear();
-                    ViewMarketplace(); //TODO write this method
+                    ViewMarketplace();
                     break;
                 case "2":
-                    //ViewProfile(); //TODO write this method
+                    ViewProfile();
                     break;
                 case "3":
                     string result = marketplace.Logout();
@@ -153,16 +153,15 @@ public class MarketplaceUI
             {
                 case "1":
                     Console.Clear();
-                    ShowAllListing(); //TODO write this method
+                    ShowAllListing();
                     break;
                 case "2":
-                    BrowseByCategory(); //TODO write this method
+                    BrowseByCategory();
                     break;
                 case "3":
-                    //SearchListing(); //TODO write this method
+                    SearchListing();
                     break;
                 case "4":
-                    ShowLoggedInMenu();
                     return;
                 default:
                     Console.WriteLine("Invalid option, try again!");
@@ -216,7 +215,7 @@ public class MarketplaceUI
         ShowListingsAndSelect(availableListings);
     }
 
-    public void ShowListingDetails(Listing listing)
+    public void ShowListingDetails(Listing listing) //TODO : block guests from purchasing
     {
         Console.Clear();
         Console.WriteLine($"=== {listing.ItemName} ===");
@@ -234,7 +233,7 @@ public class MarketplaceUI
 
         switch (choice)
         {
-            case "1":
+            case "1": // TODO block seller to buy own item
                 Console.Write("Are you sure you want to buy this item? (y/n): ");
                 string confirm = Console.ReadLine().ToLower();
                 if (confirm == "y")
@@ -243,7 +242,6 @@ public class MarketplaceUI
                     Console.WriteLine(result);
                     Console.ReadKey();
                 }
-
                 break;
             case "0":
                 return;
@@ -297,5 +295,121 @@ public class MarketplaceUI
 
         List<Listing> searchedListing = marketplace.SearchListings(searchTerm);
         ShowListingsAndSelect(searchedListing);
+    }
+    
+    private string GetStarRating(double rating)
+    {
+        int fullStars = (int)Math.Round(rating);
+        int emptyStars = 6 - fullStars;
+    
+        return new string('★', fullStars) + new string('☆', emptyStars);
+    }
+    
+    private void ShowTransactions(List<Transaction> transactions, string otherPartyLabel)
+    {
+        if (transactions.Count == 0)
+        {
+            Console.WriteLine("No transactions found. Press any key to go back.");
+            Console.ReadKey();
+            return;
+        }
+
+        Console.WriteLine($"{"#",-5} {"Item",-20} {"Price",-10} {otherPartyLabel}");
+        Console.WriteLine(new string('-', 60));
+
+        for (int i = 0; i < transactions.Count; i++)
+        {
+            string otherParty = transactions[i].Buyer == marketplace.LoggedInUser 
+                ? transactions[i].Seller.Username 
+                : transactions[i].Buyer.Username;
+            
+            Console.WriteLine($"{i + 1,-5} {transactions[i].Listing.ItemName,-20} {transactions[i].Listing.ItemPrice:N0,-10} {otherParty}");
+        }
+    
+        Console.ReadKey();
+    }
+    
+    private void ShowReviews(List<Review> reviews)
+    {
+        if (reviews.Count == 0)
+        {
+            Console.WriteLine("No reviews yet. Press any key to go back.");
+            Console.ReadKey();
+            return;
+        }
+
+        Console.WriteLine($"{"#",-5} {"Rating",-10} {"From",-15} {"Comment"}");
+        Console.WriteLine(new string('-', 60));
+
+        for (int i = 0; i < reviews.Count; i++)
+        {
+            string stars = GetStarRating(reviews[i].ReviewScore);
+            Console.WriteLine($"{i + 1,-5} {stars,-10} {reviews[i].Buyer.Username,-15} {reviews[i].ReviewText}");
+        }
+
+        Console.ReadKey();
+    }
+
+    public void ViewProfile()
+    {
+        double averageRating = marketplace.LoggedInUser.Reviews.Any()
+            ? marketplace.LoggedInUser.Reviews.Average(r => r.ReviewScore)
+            : 0;
+
+        string stars = GetStarRating(averageRating);
+        
+        List<Listing> myListings = marketplace.LoggedInUser.Listings;
+        List<Transaction> myPurchases = marketplace.LoggedInUser.Transactions
+            .Where(t => t.Buyer == marketplace.LoggedInUser)
+            .ToList();
+        List<Transaction> mySales = marketplace.LoggedInUser.Transactions
+            .Where(t => t.Seller == marketplace.LoggedInUser)
+            .ToList();
+        List<Review> reviews =  marketplace.LoggedInUser.Reviews;
+        
+        Console.Clear();
+        Console.WriteLine($"===Profile: {marketplace.LoggedInUser.Username}===");
+        Console.WriteLine($"Average Rating: {stars} ({averageRating}/6)");
+        Console.WriteLine();
+        Console.WriteLine($"{"1. My Listings:",-20} ({(myListings.Count)})");
+        Console.WriteLine($"{"2. My Purchases",-20} ({(myPurchases.Count)})");
+        Console.WriteLine($"{"3. Listings Sold",-20} ({(mySales.Count)})");
+        Console.WriteLine($"{"4. Reviews Received",-20} ({(reviews.Count)})");
+        Console.WriteLine("5. Create New Listing");
+        Console.WriteLine("6. Go back");
+        Console.WriteLine("0. Logout");
+        Console.Write("Select an option : ");
+        
+        string choice = Console.ReadLine();
+
+        switch (choice)
+        {
+            case "0":
+                string result = marketplace.Logout();
+                Console.WriteLine(result);
+                return;
+            case "1":
+                Console.Clear();
+                ShowListingsAndSelect(myListings);
+                break;
+            case "2":
+                Console.Clear();
+                ShowTransactions(myPurchases, "Seller");
+                break;
+            case "3":
+                Console.Clear();
+                ShowTransactions(mySales, "Buyer");
+                break;
+            case "4":
+                Console.Clear();
+                ShowReviews(reviews);
+                break;
+            case "5":
+                Console.Clear();
+                // CreateListing();
+                break;
+            case "6":
+                return;
+        }
     }
 }
