@@ -662,6 +662,7 @@ public class MarketplaceUI
         while (true)
         {
             Console.Clear();
+            Console.WriteLine("=== My Listings ===");
 
             if (listings.Count == 0)
             {
@@ -671,13 +672,18 @@ public class MarketplaceUI
                 return;
             }
 
-            Console.WriteLine($"{"#",-5} {"Title",-20} {"Price",-10} {"Status"}");
-            Console.WriteLine(new string('-', 60));
+            Console.WriteLine($"{"#",-5} {"Title",-30} {"Category",-25} {"Condition",-12} {"Price",-12} {"Status"}");
+            Console.WriteLine(new string('-', 90));
 
             for (int i = 0; i < listings.Count; i++)
             {
                 Console.WriteLine(
-                    $"{i + 1,-5} {listings[i].ItemName,-20} {listings[i].ItemPrice:N0,-10} {listings[i].Status}");
+                    $"{i + 1,-5} " +
+                    $"{listings[i].ItemName,-30} " +
+                    $"{FormatCategory(listings[i].Category),-25} " +
+                    $"{FormatCondition(listings[i].Condition),-12} " +
+                    $"{(listings[i].ItemPrice.ToString("N0") + " kr"),-12} " +
+                    $"{listings[i].Status}");
             }
 
             Console.WriteLine("\n0. Go back");
@@ -687,9 +693,7 @@ public class MarketplaceUI
             if (input == "0") return;
 
             if (int.TryParse(input, out int index) && index >= 1 && index <= listings.Count)
-            {
                 ManageListing(listings[index - 1]);
-            }
             else
             {
                 Console.WriteLine("Invalid selection, try again!");
