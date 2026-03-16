@@ -61,7 +61,7 @@ public class MarketplaceUI
         Console.WriteLine();
         return password;
     }
-    
+
     private string ValidateUsername(string name)
     {
         if (string.IsNullOrWhiteSpace(name)) return "Username cannot be empty";
@@ -82,7 +82,7 @@ public class MarketplaceUI
         Console.Clear();
         Console.WriteLine("=== Register ===");
         Console.WriteLine();
-    
+
         string name = "";
         while (true)
         {
@@ -123,7 +123,7 @@ public class MarketplaceUI
         {
             Console.WriteLine(e.Message);
         }
-    
+
         Console.ReadKey();
     }
 
@@ -132,7 +132,7 @@ public class MarketplaceUI
         Console.Clear();
         Console.WriteLine("=== Login ===");
         Console.WriteLine();
-        
+
         string name = "";
         while (true)
         {
@@ -169,7 +169,7 @@ public class MarketplaceUI
     {
         while (true)
         {
-            if (marketplace.LoggedInUser == null) return; 
+            if (marketplace.LoggedInUser == null) return;
             Console.Clear();
             Console.WriteLine($"Welcome, {marketplace.LoggedInUser.Username}! What would you like to do?");
             Console.WriteLine("1. Enter marketplace");
@@ -238,13 +238,13 @@ public class MarketplaceUI
             }
         }
     }
-    
+
     public void ShowAllListings()
     {
         List<Listing> allListings = marketplace.GetAllListings();
         Console.Clear();
         Console.WriteLine("=== All Listings ===");
-    
+
         if (allListings.Count == 0)
         {
             Console.WriteLine("No listings found. Press any key to go back.");
@@ -273,7 +273,7 @@ public class MarketplaceUI
         }
 
         Console.WriteLine("\n0. Go back");
-    
+
         while (true)
         {
             Console.Write("Select a listing to view: ");
@@ -347,7 +347,7 @@ public class MarketplaceUI
         Console.WriteLine($"{"Description:",-15} {listing.ItemDescription}");
 
         Console.WriteLine();
-    
+
         if (listing.Status == ListingStatus.Sold)
         {
             Console.WriteLine("This item has been sold.");
@@ -374,11 +374,13 @@ public class MarketplaceUI
                     Console.WriteLine("Invalid option!");
                     break;
                 }
+
                 if (marketplace.LoggedInUser == null)
                 {
                     Login();
                     return;
                 }
+
                 Console.Write("Are you sure you want to buy this item? (y/n): ");
                 string confirm = Console.ReadLine().ToLower();
                 if (confirm == "y")
@@ -396,6 +398,7 @@ public class MarketplaceUI
                         Console.ReadKey();
                     }
                 }
+
                 break;
             case "0":
                 return;
@@ -690,105 +693,123 @@ public class MarketplaceUI
     }
 
     public void CreateListing()
-{
-    Category[] categories = (Category[])Enum.GetValues(typeof(Category));
-    Condition[] conditions = (Condition[])Enum.GetValues(typeof(Condition));
-
-    Console.Clear();
-    Console.WriteLine("=== Create New Listing ===");
-    Console.WriteLine();
-
-    string name = "";
-    while (true)
     {
-        Console.Write("Item name: ");
-        name = Console.ReadLine();
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            Console.WriteLine("Item name cannot be empty!");
-            continue;
-        }
-        if (name.Length > 50)
-        {
-            Console.WriteLine("Item name cannot exceed 50 characters!");
-            continue;
-        }
-        break;
-    }
+        Category[] categories = (Category[])Enum.GetValues(typeof(Category));
+        Condition[] conditions = (Condition[])Enum.GetValues(typeof(Condition));
 
-    string description = "";
-    while (true)
-    {
-        Console.Write("Item description: ");
-        description = Console.ReadLine();
-        if (string.IsNullOrWhiteSpace(description))
-        {
-            Console.WriteLine("Description cannot be empty!");
-            continue;
-        }
-        if (description.Length > 200)
-        {
-            Console.WriteLine("Description cannot exceed 200 characters!");
-            continue;
-        }
-        break;
-    }
+        Console.Clear();
+        Console.WriteLine("=== Create New Listing ===");
+        Console.WriteLine();
 
-    double price = 0;
-    while (true)
-    {
-        Console.Write("Price (kr): ");
-        if (double.TryParse(Console.ReadLine(), out price) && price > 0)
-            break;
-        Console.WriteLine("Please enter a valid price!");
-    }
-
-    Category selectedCategory = categories[0];
-    Console.WriteLine("\nSelect a category:");
-    for (int i = 0; i < categories.Length; i++)
-        Console.WriteLine($"{i + 1,-5} {categories[i]}");
-
-    while (true)
-    {
-        Console.Write("Select: ");
-        string input = Console.ReadLine();
-        if (int.TryParse(input, out int index) && index >= 1 && index <= categories.Length)
+        string name = "";
+        while (true)
         {
-            selectedCategory = categories[index - 1];
+            Console.Write("Item name: ");
+            name = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                Console.WriteLine("Item name cannot be empty!");
+                continue;
+            }
+
+            if (name.Length > 50)
+            {
+                Console.WriteLine("Item name cannot exceed 50 characters!");
+                continue;
+            }
+
             break;
         }
-        Console.WriteLine("Invalid selection, try again!");
-    }
 
-    Condition selectedCondition = conditions[0];
-    Console.WriteLine("\nSelect a condition:");
-    for (int i = 0; i < conditions.Length; i++)
-        Console.WriteLine($"{i + 1,-5} {conditions[i]}");
-
-    while (true)
-    {
-        Console.Write("Select: ");
-        string input = Console.ReadLine();
-        if (int.TryParse(input, out int index) && index >= 1 && index <= conditions.Length)
+        string description = "";
+        while (true)
         {
-            selectedCondition = conditions[index - 1];
+            Console.Write("Item description: ");
+            description = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(description))
+            {
+                Console.WriteLine("Description cannot be empty!");
+                continue;
+            }
+
+            if (description.Length > 200)
+            {
+                Console.WriteLine("Description cannot exceed 200 characters!");
+                continue;
+            }
+
             break;
         }
-        Console.WriteLine("Invalid selection, try again!");
-    }
 
-    try
-    {
-        string result = marketplace.CreateListing(name, description, price, selectedCategory, selectedCondition);
-        Console.WriteLine(result);
-    }
-    catch (Exception e)
-    {
-        Console.WriteLine(e.Message);
+        double price = 0;
+        while (true)
+        {
+            Console.Write("Price (kr): ");
+            if (double.TryParse(Console.ReadLine(), out price) && price > 0)
+                break;
+            Console.WriteLine("Please enter a valid price!");
+        }
+
+        Category selectedCategory = categories[0];
+        Console.WriteLine("\nSelect a category:");
+        for (int i = 0; i < categories.Length; i++)
+            Console.WriteLine($"{i + 1,-5} {categories[i]}");
+
+        while (true)
+        {
+            Console.Write("Select: ");
+            string input = Console.ReadLine();
+            if (int.TryParse(input, out int index) && index >= 1 && index <= categories.Length)
+            {
+                selectedCategory = categories[index - 1];
+                break;
+            }
+
+            Console.WriteLine("Invalid selection, try again!");
+        }
+
+        Condition selectedCondition = conditions[0];
+        Console.WriteLine("\nSelect a condition:");
+        for (int i = 0; i < conditions.Length; i++)
+            Console.WriteLine($"{i + 1,-5} {conditions[i],-12} {GetConditionDescription(conditions[i])}");
+
+        while (true)
+        {
+            Console.Write("Select: ");
+            string input = Console.ReadLine();
+            if (int.TryParse(input, out int index) && index >= 1 && index <= conditions.Length)
+            {
+                selectedCondition = conditions[index - 1];
+                break;
+            }
+
+            Console.WriteLine("Invalid selection, try again!");
+        }
+
+        try
+        {
+            string result = marketplace.CreateListing(name, description, price, selectedCategory, selectedCondition);
+            Console.WriteLine(result);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+        Console.ReadKey();
     }
     
-    Console.ReadKey();
-}
+    private string GetConditionDescription(Condition condition)
+    {
+        switch (condition)
+        {
+            case Condition.New: return "Unused, still in original packaging";
+            case Condition.LikeNew: return "Used briefly, no visible wear";
+            case Condition.Good: return "Some signs of use, fully functional";
+            case Condition.Fair: return "Noticeable wear, but still works";
+            default: return "";
+        }
+    }
 
     public void WriteReview(Transaction transaction)
     {
@@ -897,7 +918,7 @@ public class MarketplaceUI
         Condition[] conditions = (Condition[])Enum.GetValues(typeof(Condition));
         Console.WriteLine($"\nCurrent condition: {listing.Condition}");
         for (int i = 0; i < conditions.Length; i++)
-            Console.WriteLine($"{i + 1,-5} {conditions[i]}");
+            Console.WriteLine($"{i + 1,-5} {conditions[i],-12} {GetConditionDescription(conditions[i])}");
 
         Condition condition = listing.Condition;
         while (true)
@@ -925,13 +946,13 @@ public class MarketplaceUI
             Console.WriteLine(e.Message);
         }
     }
-    
+
     private void DeleteListing(Listing listing)
     {
         Console.Clear();
         Console.WriteLine($"=== Delete {listing.ItemName} ===");
         Console.WriteLine("Are you sure you want to delete this listing? (y/n): ");
-    
+
         if (Console.ReadLine().ToLower() == "y")
         {
             try
