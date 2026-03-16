@@ -409,7 +409,7 @@ public class MarketplaceUI
                     break;
                 case "5":
                     Console.Clear();
-                    // CreateListing();
+                    CreateListing();
                     break;
                 case "6":
                     return;
@@ -472,8 +472,50 @@ public class MarketplaceUI
         string result = marketplace.CreateListing(name, description, price, selectedCategory, selectedCondition);
         Console.WriteLine(result);
     }
+
+    public void WriteReview(Transaction transaction)
+    {
+        string[] meanings = { "Very poor", "Poor", "Fair", "Good", "Very good", "Excellent" };
+        Console.Clear();
+        Console.WriteLine($"=== Writing review for {transaction.Listing.ItemName} ===");
+        Console.WriteLine($"To seller: {transaction.Seller.Username}");
+        Console.WriteLine();
+        Console.WriteLine("=== Rating guideline ===");
+        for (int i = 0; i < meanings.Length; i++)
+        {
+            Console.WriteLine($"{i + 1,-5} {meanings[i]}");
+        }
+
+        int rating = 0;
+        while (rating < 1 || rating > 6)
+        {
+            Console.Write("Select rating (1-6): ");
+            if (int.TryParse(Console.ReadLine(), out rating) && rating >= 1 && rating <= 6)
+                break;
+            Console.WriteLine("Invalid rating, try again!");
+            rating = 0;
+        }
+        
+        Console.WriteLine("Add comment to your review:");
+        string comment = "";
+        while (true)
+        {
+            Console.Write("Add comment (max 100 chars, or press Enter to skip): ");
+            comment = Console.ReadLine();
     
-    
-    
-    
+            if (comment.Length <= 100)
+                break;
+        
+            Console.WriteLine($"Too long! {comment.Length}/100 characters. Try again!");
+        }
+
+        if (comment == "")
+            comment = "No comment left";
+        
+        string result = marketplace.WriteReview(transaction, rating, comment);
+        Console.WriteLine(result);
+    }
+
+
+
 }
