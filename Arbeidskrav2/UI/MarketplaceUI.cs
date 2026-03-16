@@ -252,7 +252,7 @@ public class MarketplaceUI
         ShowListingsAndSelect(availableListings);
     }
 
-    public void ShowListingDetails(Listing listing) //TODO : block guests from purchasing
+    public void ShowListingDetails(Listing listing)
     {
         Console.Clear();
         Console.WriteLine($"=== {listing.ItemName} ===");
@@ -262,7 +262,17 @@ public class MarketplaceUI
         Console.WriteLine($"{"Price:",-15} {listing.ItemPrice:N0} kr");
         Console.WriteLine($"{"Description:",-15} {listing.ItemDescription}");
 
-        Console.WriteLine("\n1. Buy this item");
+        Console.WriteLine();
+    
+        if (marketplace.LoggedInUser != null)
+        {
+            Console.WriteLine("1. Buy this item");
+        }
+        else
+        {
+            Console.WriteLine("1. Login to purchase this item");
+        }
+    
         Console.WriteLine("0. Go back");
         Console.Write("Select an option: ");
 
@@ -270,7 +280,12 @@ public class MarketplaceUI
 
         switch (choice)
         {
-            case "1": // TODO block seller to buy own item
+            case "1":
+                if (marketplace.LoggedInUser == null)
+                {
+                    Login();
+                    return;
+                }
                 Console.Write("Are you sure you want to buy this item? (y/n): ");
                 string confirm = Console.ReadLine().ToLower();
                 if (confirm == "y")
@@ -279,7 +294,6 @@ public class MarketplaceUI
                     Console.WriteLine(result);
                     Console.ReadKey();
                 }
-
                 break;
             case "0":
                 return;
