@@ -132,11 +132,17 @@ public class MarketplaceUI
         Console.Write("Enter password: ");
         string password = ReadPassword();
 
-        string result = marketplace.Login(name, password);
-        Console.WriteLine(result);
-
-        if (result == "Logged in success")
+        try
+        {
+            string result = marketplace.Login(name, password);
+            Console.WriteLine(result);
             ShowLoggedInMenu();
+        }
+        catch (InvalidOperationException e)
+        {
+            Console.WriteLine(e.Message);
+            Console.ReadKey();
+        }
     }
 
     public void ShowLoggedInMenu()
@@ -727,8 +733,15 @@ public class MarketplaceUI
         if (comment == "")
             comment = "No comment left";
 
-        string result = marketplace.WriteReview(transaction, rating, comment);
-        Console.WriteLine(result);
+        try
+        {
+            string result = marketplace.WriteReview(transaction, rating, comment);
+            Console.WriteLine(result);
+        }
+        catch (InvalidOperationException e)
+        {
+            Console.WriteLine(e.Message);
+        }
     }
 
     private void EditListing(Listing listing)
@@ -806,9 +819,15 @@ public class MarketplaceUI
             Console.WriteLine("Invalid selection, try again!");
         }
 
-        string result = marketplace.EditListing(listing, name, description, price, category, condition);
-        Console.WriteLine(result);
-        Console.ReadKey();
+        try
+        {
+            string result = marketplace.EditListing(listing, name, description, price, category, condition);
+            Console.WriteLine(result);
+        }
+        catch (InvalidOperationException e)
+        {
+            Console.WriteLine(e.Message);
+        }
     }
     
     private void DeleteListing(Listing listing)
@@ -819,9 +838,15 @@ public class MarketplaceUI
     
         if (Console.ReadLine().ToLower() == "y")
         {
-            string result = marketplace.DeleteListing(listing);
-            Console.WriteLine(result);
-            Console.ReadKey();
+            try
+            {
+                string result = marketplace.DeleteListing(listing);
+                Console.WriteLine(result);
+            }
+            catch (InvalidOperationException e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
     }
 }
