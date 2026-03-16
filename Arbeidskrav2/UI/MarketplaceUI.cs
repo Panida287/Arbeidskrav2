@@ -446,7 +446,7 @@ public class MarketplaceUI
                     return;
                 case "1":
                     Console.Clear();
-                    ShowListingsAndSelect(myListings);
+                    ShowMyListings(myListings);
                     break;
                 case "2":
                     Console.Clear();
@@ -467,6 +467,70 @@ public class MarketplaceUI
                 case "6":
                     return;
             }
+        }
+    }
+    
+    private void ShowMyListings(List<Listing> listings)
+    {
+        while (true)
+        {
+            Console.Clear();
+        
+            if (listings.Count == 0)
+            {
+                Console.WriteLine("You have no listings.");
+                Console.WriteLine("\n0. Go back");
+                Console.ReadLine();
+                return;
+            }
+
+            Console.WriteLine($"{"#",-5} {"Title",-20} {"Price",-10} {"Status"}");
+            Console.WriteLine(new string('-', 60));
+
+            for (int i = 0; i < listings.Count; i++)
+            {
+                Console.WriteLine($"{i + 1,-5} {listings[i].ItemName,-20} {listings[i].ItemPrice:N0,-10} {listings[i].Status}");
+            }
+
+            Console.WriteLine("\n0. Go back");
+            Console.Write("Select a listing to manage: ");
+
+            string input = Console.ReadLine();
+            if (input == "0") return;
+
+            if (int.TryParse(input, out int index) && index >= 1 && index <= listings.Count)
+            {
+                ManageListing(listings[index - 1]);
+            }
+            else
+            {
+                Console.WriteLine("Invalid selection, try again!");
+            }
+        }
+    }
+    
+    private void ManageListing(Listing listing)
+    {
+        Console.Clear();
+        Console.WriteLine($"=== {listing.ItemName} ===");
+        Console.WriteLine($"{"Price:",-15} {listing.ItemPrice:N0} kr");
+        Console.WriteLine($"{"Status:",-15} {listing.Status}");
+        Console.WriteLine();
+        Console.WriteLine("1. Edit listing");
+        Console.WriteLine("2. Delete listing");
+        Console.WriteLine("0. Go back");
+        Console.Write("Select: ");
+
+        switch (Console.ReadLine())
+        {
+            case "1":
+                // EditListing(listing);
+                break;
+            case "2":
+                // DeleteListing(listing);
+                break;
+            case "0":
+                return;
         }
     }
 
