@@ -222,13 +222,13 @@ public class MarketplaceUI
             return;
         }
 
-        Console.WriteLine($"{"#",-5} {"Title",-20} {"Category",-15} {"Condition",-12} {"Price"}");
-        Console.WriteLine(new string('-', 60));
+        Console.WriteLine($"{"#",-5} {"Title",-30} {"Category",-25} {"Condition",-12} {"Price"}");
+        Console.WriteLine(new string('-', 80));
 
         for (int i = 0; i < listings.Count; i++)
         {
             Console.WriteLine(
-                $"{i + 1,-5} {listings[i].ItemName,-20} {listings[i].Category,-15} {listings[i].Condition,-12} {listings[i].ItemPrice:N0} kr");
+                $"{i + 1,-5} {listings[i].ItemName,-30} {listings[i].Category,-25} {listings[i].Condition,-12} {listings[i].ItemPrice:N0} kr");
         }
 
         Console.WriteLine("\n0. Go back");
@@ -321,14 +321,14 @@ public class MarketplaceUI
     public void BrowseByCategory()
     {
         Console.Clear();
-        Console.WriteLine("=== Browse by Category ===");
+        Console.WriteLine("====== Browse by Category ======");
 
         Category[] categories = (Category[])Enum.GetValues(typeof(Category));
 
         for (int i = 0; i < categories.Length; i++)
         {
             int count = marketplace.GetListingsByCategory(categories[i]).Count;
-            Console.WriteLine($"{i + 1,-5} {categories[i],-20} ({count} items)");
+            Console.WriteLine($"{i + 1,-5} {categories[i],-30:w} ({count} items)");
         }
 
         Console.WriteLine("\n0. Go back");
@@ -386,7 +386,7 @@ public class MarketplaceUI
                 return;
             }
 
-            Console.WriteLine($"{"#",-5} {"Item",-20} {"Price",-10} {"Date",-15} {otherPartyLabel,-15} {"Review"}");
+            Console.WriteLine($"{"#",-5} {"Item",-30} {"Price",-12} {"Date",-15} {otherPartyLabel,-15} {"Review"}");
             Console.WriteLine(new string('-', 85));
 
             for (int i = 0; i < transactions.Count; i++)
@@ -399,8 +399,8 @@ public class MarketplaceUI
 
                 Console.WriteLine(
                     $"{i + 1,-5} " +
-                    $"{transactions[i].Listing.ItemName,-20} " +
-                    $"{transactions[i].Listing.ItemPrice:N0,-10} " +
+                    $"{transactions[i].Listing.ItemName,-30} " +
+                    $"{(transactions[i].Listing.ItemPrice.ToString("N0") + " kr"),-12} " +
                     $"{transactions[i].Date.ToString("dd/MM/yyyy"),-15} " +
                     $"{otherParty,-15} " +
                     $"{reviewed}"
