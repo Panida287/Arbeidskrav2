@@ -52,10 +52,10 @@ public class Marketplace
         User user = users.FirstOrDefault(u => u.Username == username);
 
         if (user == null)
-            return "Username not found";
+            throw new InvalidOperationException("Username not found");
 
         if (!user.CheckPassword(password))
-            return "Incorrect password";
+            throw new InvalidOperationException("Incorrect password");
 
         loggedInUser = user;
         return "Logged in success";
@@ -138,7 +138,8 @@ public class Marketplace
                        ?? CheckIfSeller(listing);
 
         if (error != null)
-            return error;
+            throw new InvalidOperationException(error);
+        
         listing.Status = ListingStatus.Sold;
         Transaction transaction = new Transaction(listing, loggedInUser, listing.Seller);
         loggedInUser.AddTransaction(transaction);
@@ -154,7 +155,7 @@ public class Marketplace
                        ?? CheckIfReviewed(transaction);
 
         if (error != null)
-            return error;
+            throw new InvalidOperationException(error);
 
         Review review = new Review(score, reviewText, loggedInUser, transaction.Seller, transaction.Listing);
         transaction.AddReview(review);
@@ -167,10 +168,10 @@ public class Marketplace
     {
         string error = CheckIfLoggedIn();
         if (error != null)
-            return error;
+            throw new InvalidOperationException(error);
 
         if (listing.Seller != loggedInUser)
-            return "You can only edit your own listings";
+            throw new InvalidOperationException("You can only edit your own listings");
 
         if (!string.IsNullOrWhiteSpace(name))
             listing.ItemName = name;
@@ -188,10 +189,10 @@ public class Marketplace
     {
         string error = CheckIfLoggedIn();
         if (error != null)
-            return error;
+            throw new InvalidOperationException(error);
 
         if (listing.Seller != loggedInUser)
-            return "You can only delete your own listings";
+            throw new InvalidOperationException("You can only delete your own listings");
 
         listings.Remove(listing);
         loggedInUser.Listings.Remove(listing);
