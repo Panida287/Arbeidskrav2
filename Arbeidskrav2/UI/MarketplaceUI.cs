@@ -80,12 +80,16 @@ public class MarketplaceUI
     public void Register()
     {
         Console.Clear();
+        Console.WriteLine("=== Register ===");
+        Console.WriteLine("0. Go back");
+        Console.WriteLine();
     
         string name = "";
         while (true)
         {
-            Console.Write("Enter your username: ");
+            Console.Write("Enter username (or 0 to go back): ");
             name = Console.ReadLine();
+            if (name == "0") return;
             string error = ValidateUsername(name);
             if (error == null) break;
             Console.WriteLine(error);
@@ -94,7 +98,7 @@ public class MarketplaceUI
         string password = "";
         while (true)
         {
-            Console.Write("Enter your password (4 digits): ");
+            Console.Write("Enter password (4 digits): ");
             password = ReadPassword();
             string error = ValidatePassword(password);
             if (error == null) break;
@@ -105,6 +109,7 @@ public class MarketplaceUI
         {
             Console.Write("Repeat your password: ");
             string passwordRepeat = ReadPassword();
+            if (!string.IsNullOrWhiteSpace(password)) break;
             if (password == passwordRepeat)
                 break;
             Console.WriteLine("Passwords don't match, try again!");
@@ -126,11 +131,28 @@ public class MarketplaceUI
     public void Login()
     {
         Console.Clear();
-        Console.Write("Enter username: ");
-        string name = Console.ReadLine();
+        Console.WriteLine("=== Login ===");
+        Console.WriteLine("0. Go back");
+        Console.WriteLine();
+        
+        string name = "";
+        while (true)
+        {
+            Console.Write("Enter username (or 0 to go back): ");
+            name = Console.ReadLine();
+            if (name == "0") return;
+            if (!string.IsNullOrWhiteSpace(name)) break;
+            Console.WriteLine("Username cannot be empty!");
+        }
 
-        Console.Write("Enter password: ");
-        string password = ReadPassword();
+        string password = "";
+        while (true)
+        {
+            Console.Write("Enter password: ");
+            password = ReadPassword();
+            if (!string.IsNullOrWhiteSpace(password)) break;
+            Console.WriteLine("Password cannot be empty!");
+        }
 
         try
         {
