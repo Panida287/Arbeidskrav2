@@ -296,9 +296,18 @@ public class MarketplaceUI
                 string confirm = Console.ReadLine().ToLower();
                 if (confirm == "y")
                 {
-                    string result = marketplace.Purchase(listing);
-                    Console.WriteLine(result);
-                    Console.ReadKey();
+                    try
+                    {
+                        string result = marketplace.Purchase(listing);
+                        Console.WriteLine(result);
+                        Console.ReadKey();
+                        return;
+                    }
+                    catch (InvalidOperationException e)
+                    {
+                        Console.WriteLine(e.Message);
+                        Console.ReadKey();
+                    }
                 }
                 break;
             case "0":
