@@ -171,6 +171,7 @@ public class MarketplaceUI
     {
         while (true)
         {
+            if (marketplace.LoggedInUser == null) return; 
             Console.Clear();
             Console.WriteLine($"Welcome, {marketplace.LoggedInUser.Username}! What would you like to do?");
             Console.WriteLine("1. Enter marketplace");
