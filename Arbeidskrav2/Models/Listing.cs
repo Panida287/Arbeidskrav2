@@ -2,6 +2,9 @@ using Arbeidskrav2.Enums;
 
 namespace Arbeidskrav2.Models
 {
+    /// <summary>
+    /// Represents an item listed for sale in the marketplace.
+    /// </summary>
     public class Listing
     {
         private string itemName;

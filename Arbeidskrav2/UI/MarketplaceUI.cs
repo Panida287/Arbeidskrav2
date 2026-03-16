@@ -6,13 +6,23 @@ namespace Arbeidskrav2.UI;
 
 public class MarketplaceUI
 {
+    
+    // ── Fields ──────────────────────────────────────────
     private Marketplace marketplace;
 
+    
+    // ── Constructor ─────────────────────────────────────
+    /// <summary>
+    /// Handles all console UI interactions for the marketplace application.
+    /// </summary>
     public MarketplaceUI(Marketplace marketplace)
     {
         this.marketplace = marketplace;
     }
-
+    
+    
+    // ── Public Methods ───────────────────────────────────
+    /// <summary>Displays the main menu for unauthenticated users.</summary>
     public void ShowMainMenu()
     {
         while (true)
@@ -44,46 +54,13 @@ public class MarketplaceUI
         }
     }
 
-    private string ReadPassword()
-    {
-        string password = "";
-        ConsoleKeyInfo key;
-        do
-        {
-            key = Console.ReadKey(intercept: true);
-            if (key.Key != ConsoleKey.Enter)
-            {
-                password += key.KeyChar;
-                Console.Write("*");
-            }
-        } while (key.Key != ConsoleKey.Enter);
-
-        Console.WriteLine();
-        return password;
-    }
-    
-    private string ValidateUsername(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name)) return "Username cannot be empty";
-        if (name.Length < 3) return "Username must be at least 3 characters";
-        if (name.Length > 20) return "Username cannot exceed 20 characters";
-        return null;
-    }
-
-    private string ValidatePassword(string password)
-    {
-        if (password.Length != 4) return "Password must be exactly 4 digits";
-        if (!password.All(char.IsDigit)) return "Password must contain numbers only";
-        return null;
-    }
-
+    /// <summary>Handles user registration with username and password validation.</summary>
     public void Register()
     {
         Console.Clear();
         Console.WriteLine("=== Register ===");
-        Console.WriteLine("0. Go back");
         Console.WriteLine();
-    
+
         string name = "";
         while (true)
         {
@@ -124,17 +101,17 @@ public class MarketplaceUI
         {
             Console.WriteLine(e.Message);
         }
-    
+
         Console.ReadKey();
     }
 
+    /// <summary>Handles user login with credentials validation.</summary>
     public void Login()
     {
         Console.Clear();
         Console.WriteLine("=== Login ===");
-        Console.WriteLine("0. Go back");
         Console.WriteLine();
-        
+
         string name = "";
         while (true)
         {
@@ -167,11 +144,12 @@ public class MarketplaceUI
         }
     }
 
+    /// <summary>Displays the main menu for logged in users.</summary>
     public void ShowLoggedInMenu()
     {
         while (true)
         {
-            if (marketplace.LoggedInUser == null) return; 
+            if (marketplace.LoggedInUser == null) return;
             Console.Clear();
             Console.WriteLine($"Welcome, {marketplace.LoggedInUser.Username}! What would you like to do?");
             Console.WriteLine("1. Enter marketplace");
@@ -201,6 +179,7 @@ public class MarketplaceUI
         }
     }
 
+    /// <summary>Displays the marketplace browsing menu.</summary>
     public void ViewMarketplace()
     {
         while (true)
@@ -240,13 +219,411 @@ public class MarketplaceUI
             }
         }
     }
+
+    /// <summary>Displays all listings including sold items.</summary>
+    public void ShowAllListing()
+    {
+        List<Listing> availableListings = marketplace.GetAvailableListings();
+        Console.Clear();
+        Console.WriteLine("=== Available Listings ===");
+        ShowListingsAndSelect(availableListings);
+    }
+
+    /// <summary>Displays the details of a specific listing.</summary>
+    /// <param name="listing">The listing to display.</param>
+    public void ShowListingDetails(Listing listing)
+    {
+        Console.Clear();
+        Console.WriteLine($"=== {listing.ItemName} ===");
+        Console.WriteLine($"{"Seller:",-15} {listing.Seller.Username}");
+        Console.WriteLine($"{"Category:",-15} {FormatCategory(listing.Category)}");
+        Console.WriteLine($"{"Condition:",-15} {FormatCondition(listing.Condition)}");
+        Console.WriteLine($"{"Price:",-15} {listing.ItemPrice:N0} kr");
+        Console.WriteLine($"{"Description:",-15} {listing.ItemDescription}");
+
+        Console.WriteLine();
+
+        if (listing.Status == ListingStatus.Sold)
+        {
+            Console.WriteLine("This item has been sold.");
+        }
+        else if (marketplace.LoggedInUser != null)
+        {
+            Console.WriteLine("1. Buy this item");
+        }
+        else
+        {
+            Console.WriteLine("1. Login to purchase this item");
+        }
+
+        Console.WriteLine("0. Go back");
+        Console.Write("Select an option: ");
+
+        string choice = Console.ReadLine();
+
+        switch (choice)
+        {
+            case "1":
+                if (listing.Status == ListingStatus.Sold)
+                {
+                    Console.WriteLine("Invalid option!");
+                    break;
+                }
+
+                if (marketplace.LoggedInUser == null)
+                {
+                    Login();
+                    return;
+                }
+
+                Console.Write("Are you sure you want to buy this item? (y/n): ");
+                string confirm = Console.ReadLine().ToLower();
+                if (confirm == "y")
+                {
+                    try
+                    {
+                        string result = marketplace.Purchase(listing);
+                        Console.WriteLine(result);
+                        Console.ReadKey();
+                        return;
+                    }
+                    catch (InvalidOperationException e)
+                    {
+                        Console.WriteLine(e.Message);
+                        Console.ReadKey();
+                    }
+                }
+
+                break;
+            case "0":
+                return;
+            default:
+                Console.WriteLine("Invalid option!");
+                break;
+        }
+    }
+
+    /// <summary>Displays listings filtered by category.</summary>
+    public void BrowseByCategory()
+    {
+        Console.Clear();
+        Console.WriteLine("====== Browse by Category ======");
+
+        Category[] categories = (Category[])Enum.GetValues(typeof(Category));
+
+        for (int i = 0; i < categories.Length; i++)
+        {
+            int count = marketplace.GetListingsByCategory(categories[i]).Count;
+            Console.WriteLine($"{i + 1,-5} {FormatCategory(categories[i]),-30} ({count} items)");
+        }
+
+        Console.WriteLine("\n0. Go back");
+
+        while (true)
+        {
+            Console.Write("Select a category: ");
+            string input = Console.ReadLine();
+
+            if (input == "0") return;
+
+            if (int.TryParse(input, out int index) && index >= 1 && index <= categories.Length)
+            {
+                Category selected = categories[index - 1];
+                List<Listing> categoryListings = marketplace.GetListingsByCategory(selected);
+                Console.WriteLine($"\n=== {FormatCategory(selected)} Listings ===");
+                ShowListingsAndSelect(categoryListings);
+                return;
+            }
+
+            Console.WriteLine("Invalid selection, try again!");
+        }
+    }
+
+    /// <summary>Allows user to search listings by keyword.</summary>
+    public void SearchListing()
+    {
+        while (true)
+        {
+            Console.Clear();
+            Console.WriteLine("=== Search listings===");
+            Console.Write("What are you looking for? (or 0 to go back): ");
+            string searchTerm = Console.ReadLine();
+            
+            if (searchTerm == "0") return;
+
+            List<Listing> searchedListing = marketplace.SearchListings(searchTerm);
+            if (searchedListing.Count == 0)
+            {
+                Console.WriteLine("No listings found. Press any key to search again.");
+                Console.ReadKey();
+                continue;
+            }
+            ShowListingsAndSelect(searchedListing);
+        }
+    }
     
+    /// <summary>Displays the logged in user's profile and management options.</summary>
+    public void ViewProfile()
+    {
+        while (true)
+        {
+            double averageRating = marketplace.LoggedInUser.Reviews.Any()
+                ? marketplace.LoggedInUser.Reviews.Average(r => r.ReviewScore)
+                : 0;
+
+            string stars = GetStarRating(averageRating);
+
+            List<Listing> myListings = marketplace.LoggedInUser.Listings;
+            List<Transaction> myPurchases = marketplace.LoggedInUser.Transactions
+                .Where(t => t.Buyer == marketplace.LoggedInUser)
+                .ToList();
+            List<Transaction> mySales = marketplace.LoggedInUser.Transactions
+                .Where(t => t.Seller == marketplace.LoggedInUser)
+                .ToList();
+            List<Review> reviews = marketplace.LoggedInUser.Reviews;
+
+            Console.Clear();
+            Console.WriteLine($"===Profile: {marketplace.LoggedInUser.Username}===");
+            Console.WriteLine($"Average Rating: {stars} ({averageRating}/6)");
+            Console.WriteLine();
+            Console.WriteLine($"{"1. My Listings:",-20} ({(myListings.Count)})");
+            Console.WriteLine($"{"2. My Purchases",-20} ({(myPurchases.Count)})");
+            Console.WriteLine($"{"3. Listings Sold",-20} ({(mySales.Count)})");
+            Console.WriteLine($"{"4. Reviews Received",-20} ({(reviews.Count)})");
+            Console.WriteLine("5. Create New Listing");
+            Console.WriteLine("6. Go back");
+            Console.WriteLine("0. Logout");
+            Console.Write("Select an option : ");
+
+            string choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "0":
+                    string result = marketplace.Logout();
+                    Console.WriteLine(result);
+                    return;
+                case "1":
+                    Console.Clear();
+                    ShowMyListings(myListings);
+                    break;
+                case "2":
+                    Console.Clear();
+                    ShowTransactions(myPurchases, "Seller");
+                    break;
+                case "3":
+                    Console.Clear();
+                    ShowTransactions(mySales, "Buyer");
+                    break;
+                case "4":
+                    Console.Clear();
+                    ShowReviews(reviews);
+                    break;
+                case "5":
+                    Console.Clear();
+                    CreateListing();
+                    break;
+                case "6":
+                    return;
+            }
+        }
+    }
+
+    /// <summary>Displays the logged in user's profile and management options.</summary>
+    public void CreateListing()
+    {
+        Category[] categories = (Category[])Enum.GetValues(typeof(Category));
+        Condition[] conditions = (Condition[])Enum.GetValues(typeof(Condition));
+
+        Console.Clear();
+        Console.WriteLine("=== Create New Listing ===");
+        Console.WriteLine();
+
+        string name = "";
+        while (true)
+        {
+            Console.Write("Item name: ");
+            name = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                Console.WriteLine("Item name cannot be empty!");
+                continue;
+            }
+
+            if (name.Length > 50)
+            {
+                Console.WriteLine("Item name cannot exceed 50 characters!");
+                continue;
+            }
+
+            break;
+        }
+
+        string description = "";
+        while (true)
+        {
+            Console.Write("Item description: ");
+            description = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(description))
+            {
+                Console.WriteLine("Description cannot be empty!");
+                continue;
+            }
+
+            if (description.Length > 200)
+            {
+                Console.WriteLine("Description cannot exceed 200 characters!");
+                continue;
+            }
+
+            break;
+        }
+
+        double price = 0;
+        while (true)
+        {
+            Console.Write("Price (kr): ");
+            if (double.TryParse(Console.ReadLine(), out price) && price > 0)
+                break;
+            Console.WriteLine("Please enter a valid price!");
+        }
+
+        Category selectedCategory = categories[0];
+        Console.WriteLine("\nSelect a category:");
+        for (int i = 0; i < categories.Length; i++)
+            Console.WriteLine($"{i + 1,-5} {categories[i]}");
+
+        while (true)
+        {
+            Console.Write("Select: ");
+            string input = Console.ReadLine();
+            if (int.TryParse(input, out int index) && index >= 1 && index <= categories.Length)
+            {
+                selectedCategory = categories[index - 1];
+                break;
+            }
+
+            Console.WriteLine("Invalid selection, try again!");
+        }
+
+        Condition selectedCondition = conditions[0];
+        Console.WriteLine("\nSelect a condition:");
+        for (int i = 0; i < conditions.Length; i++)
+            Console.WriteLine($"{i + 1,-5} {conditions[i],-12} {GetConditionDescription(conditions[i])}");
+
+        while (true)
+        {
+            Console.Write("Select: ");
+            string input = Console.ReadLine();
+            if (int.TryParse(input, out int index) && index >= 1 && index <= conditions.Length)
+            {
+                selectedCondition = conditions[index - 1];
+                break;
+            }
+
+            Console.WriteLine("Invalid selection, try again!");
+        }
+
+        try
+        {
+            string result = marketplace.CreateListing(name, description, price, selectedCategory, selectedCondition);
+            Console.WriteLine(result);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+        Console.ReadKey();
+    }
+
+    /// <summary>Handles writing a review for a purchased item.</summary>
+    /// <param name="transaction">The transaction to review.</param>
+    public void WriteReview(Transaction transaction)
+    {
+        string[] meanings = { "Very poor", "Poor", "Fair", "Good", "Very good", "Excellent" };
+        Console.Clear();
+        Console.WriteLine($"=== Writing review for {transaction.Listing.ItemName} ===");
+        Console.WriteLine($"To seller: {transaction.Seller.Username}");
+        Console.WriteLine();
+        Console.WriteLine("=== Rating guideline ===");
+        for (int i = 0; i < meanings.Length; i++)
+        {
+            Console.WriteLine($"{i + 1,-5} {meanings[i]}");
+        }
+
+        int rating = 0;
+        while (rating < 1 || rating > 6)
+        {
+            Console.Write("Select rating (1-6): ");
+            if (int.TryParse(Console.ReadLine(), out rating) && rating >= 1 && rating <= 6)
+                break;
+            Console.WriteLine("Invalid rating, try again!");
+            rating = 0;
+        }
+
+        Console.WriteLine("Add comment to your review:");
+        string comment = "";
+        while (true)
+        {
+            Console.Write("Add comment (max 100 chars, or press Enter to skip): ");
+            comment = Console.ReadLine();
+
+            if (comment.Length <= 100)
+                break;
+
+            Console.WriteLine($"Too long! {comment.Length}/100 characters. Try again!");
+        }
+
+        if (comment == "")
+            comment = "No comment left";
+
+        try
+        {
+            string result = marketplace.WriteReview(transaction, rating, comment);
+            Console.WriteLine(result);
+        }
+        catch (InvalidOperationException e)
+        {
+            Console.WriteLine(e.Message);
+        }
+    }
+    
+    
+    // ── Private Helpers ──────────────────────────────────
+        
+    private string FormatCategory(Category category)
+    {
+        switch (category)
+        {
+            case Category.Electronics: return "Electronics";
+            case Category.ClothingAndAccessories: return "Clothing & Accessories";
+            case Category.FurnitureAndHome: return "Furniture & Home";
+            case Category.BooksAndMedia: return "Books & Media";
+            case Category.SportsAndOutdoors: return "Sports & Outdoors";
+            case Category.Other: return "Other";
+            default: return category.ToString();
+        }
+    }
+    
+    private string FormatCondition(Condition condition)
+    {
+        switch (condition)
+        {
+            case Condition.New: return "New";
+            case Condition.LikeNew: return "Like New";
+            case Condition.Good: return "Good";
+            case Condition.Fair: return "Fair";
+            default: return condition.ToString();
+        }
+    }
+
     public void ShowAllListings()
     {
         List<Listing> allListings = marketplace.GetAllListings();
         Console.Clear();
         Console.WriteLine("=== All Listings ===");
-    
+
         if (allListings.Count == 0)
         {
             Console.WriteLine("No listings found. Press any key to go back.");
@@ -268,14 +645,14 @@ public class MarketplaceUI
             Console.WriteLine(
                 $"{i + 1,-5} " +
                 $"{allListings[i].ItemName,-30} " +
-                $"{allListings[i].Category,-25} " +
-                $"{allListings[i].Condition,-15} " +
+                $"{FormatCategory(allListings[i].Category),-25} " +
+                $"{FormatCondition(allListings[i].Condition),-15} " +
                 $"{(allListings[i].ItemPrice.ToString("N0") + " kr"),-15} " +
                 $"{status}");
         }
 
         Console.WriteLine("\n0. Go back");
-    
+
         while (true)
         {
             Console.Write("Select a listing to view: ");
@@ -303,12 +680,16 @@ public class MarketplaceUI
         }
 
         Console.WriteLine($"{"#",-5} {"Title",-30} {"Category",-25} {"Condition",-12} {"Price"}");
-        Console.WriteLine(new string('-', 80));
+        Console.WriteLine(new string('-', 90));
 
         for (int i = 0; i < listings.Count; i++)
         {
             Console.WriteLine(
-                $"{i + 1,-5} {listings[i].ItemName,-30} {listings[i].Category,-25} {listings[i].Condition,-12} {listings[i].ItemPrice:N0} kr");
+                $"{i + 1,-5} " +
+                $"{listings[i].ItemName,-30} " +
+                $"{FormatCategory(listings[i].Category),-25} " +
+                $"{FormatCondition(listings[i].Condition),-12} " +
+                $"{listings[i].ItemPrice:N0} kr");
         }
 
         Console.WriteLine("\n0. Go back");
@@ -329,130 +710,7 @@ public class MarketplaceUI
             Console.WriteLine("Invalid selection, try again!");
         }
     }
-
-    public void ShowAllListing()
-    {
-        List<Listing> availableListings = marketplace.GetAvailableListings();
-        Console.Clear();
-        Console.WriteLine("=== Available Listings ===");
-        ShowListingsAndSelect(availableListings);
-    }
-
-    public void ShowListingDetails(Listing listing)
-    {
-        Console.Clear();
-        Console.WriteLine($"=== {listing.ItemName} ===");
-        Console.WriteLine($"{"Seller:",-15} {listing.Seller.Username}");
-        Console.WriteLine($"{"Category:",-15} {listing.Category}");
-        Console.WriteLine($"{"Condition:",-15} {listing.Condition}");
-        Console.WriteLine($"{"Price:",-15} {listing.ItemPrice:N0} kr");
-        Console.WriteLine($"{"Description:",-15} {listing.ItemDescription}");
-
-        Console.WriteLine();
     
-        if (listing.Status == ListingStatus.Sold)
-        {
-            Console.WriteLine("This item has been sold.");
-        }
-        else if (marketplace.LoggedInUser != null)
-        {
-            Console.WriteLine("1. Buy this item");
-        }
-        else
-        {
-            Console.WriteLine("1. Login to purchase this item");
-        }
-
-        Console.WriteLine("0. Go back");
-        Console.Write("Select an option: ");
-
-        string choice = Console.ReadLine();
-
-        switch (choice)
-        {
-            case "1":
-                if (listing.Status == ListingStatus.Sold)
-                {
-                    Console.WriteLine("Invalid option!");
-                    break;
-                }
-                if (marketplace.LoggedInUser == null)
-                {
-                    Login();
-                    return;
-                }
-                Console.Write("Are you sure you want to buy this item? (y/n): ");
-                string confirm = Console.ReadLine().ToLower();
-                if (confirm == "y")
-                {
-                    try
-                    {
-                        string result = marketplace.Purchase(listing);
-                        Console.WriteLine(result);
-                        Console.ReadKey();
-                        return;
-                    }
-                    catch (InvalidOperationException e)
-                    {
-                        Console.WriteLine(e.Message);
-                        Console.ReadKey();
-                    }
-                }
-                break;
-            case "0":
-                return;
-            default:
-                Console.WriteLine("Invalid option!");
-                break;
-        }
-    }
-
-    public void BrowseByCategory()
-    {
-        Console.Clear();
-        Console.WriteLine("====== Browse by Category ======");
-
-        Category[] categories = (Category[])Enum.GetValues(typeof(Category));
-
-        for (int i = 0; i < categories.Length; i++)
-        {
-            int count = marketplace.GetListingsByCategory(categories[i]).Count;
-            Console.WriteLine($"{i + 1,-5} {categories[i],-30:w} ({count} items)");
-        }
-
-        Console.WriteLine("\n0. Go back");
-
-        while (true)
-        {
-            Console.Write("Select a category: ");
-            string input = Console.ReadLine();
-
-            if (input == "0") return;
-
-            if (int.TryParse(input, out int index) && index >= 1 && index <= categories.Length)
-            {
-                Category selected = categories[index - 1];
-                List<Listing> categoryListings = marketplace.GetListingsByCategory(selected);
-                Console.WriteLine($"\n=== {selected} Listings ===");
-                ShowListingsAndSelect(categoryListings);
-                return;
-            }
-
-            Console.WriteLine("Invalid selection, try again!");
-        }
-    }
-
-    public void SearchListing()
-    {
-        Console.Clear();
-        Console.WriteLine("=== Search listings===");
-        Console.Write("What are you looking for?: ");
-        string searchTerm = Console.ReadLine();
-
-        List<Listing> searchedListing = marketplace.SearchListings(searchTerm);
-        ShowListingsAndSelect(searchedListing);
-    }
-
     private string GetStarRating(double rating)
     {
         int fullStars = (int)Math.Round(rating);
@@ -537,8 +795,7 @@ public class MarketplaceUI
         if (int.TryParse(Console.ReadLine(), out int index) && index >= 1 && index <= unreviewed.Count)
             WriteReview(unreviewed[index - 1]);
     }
-
-
+    
     private void ShowReviews(List<Review> reviews)
     {
         if (reviews.Count == 0)
@@ -556,81 +813,28 @@ public class MarketplaceUI
             string stars = GetStarRating(reviews[i].ReviewScore);
             Console.WriteLine($"{i + 1,-5} {stars,-10} {reviews[i].Buyer.Username,-15} {reviews[i].ReviewText}");
         }
-
+        Console.WriteLine("Press any key to go back.");
         Console.ReadKey();
     }
-
-    public void ViewProfile()
+    
+    private string GetConditionDescription(Condition condition)
     {
-        while (true)
+        switch (condition)
         {
-            double averageRating = marketplace.LoggedInUser.Reviews.Any()
-                ? marketplace.LoggedInUser.Reviews.Average(r => r.ReviewScore)
-                : 0;
-
-            string stars = GetStarRating(averageRating);
-
-            List<Listing> myListings = marketplace.LoggedInUser.Listings;
-            List<Transaction> myPurchases = marketplace.LoggedInUser.Transactions
-                .Where(t => t.Buyer == marketplace.LoggedInUser)
-                .ToList();
-            List<Transaction> mySales = marketplace.LoggedInUser.Transactions
-                .Where(t => t.Seller == marketplace.LoggedInUser)
-                .ToList();
-            List<Review> reviews = marketplace.LoggedInUser.Reviews;
-
-            Console.Clear();
-            Console.WriteLine($"===Profile: {marketplace.LoggedInUser.Username}===");
-            Console.WriteLine($"Average Rating: {stars} ({averageRating}/6)");
-            Console.WriteLine();
-            Console.WriteLine($"{"1. My Listings:",-20} ({(myListings.Count)})");
-            Console.WriteLine($"{"2. My Purchases",-20} ({(myPurchases.Count)})");
-            Console.WriteLine($"{"3. Listings Sold",-20} ({(mySales.Count)})");
-            Console.WriteLine($"{"4. Reviews Received",-20} ({(reviews.Count)})");
-            Console.WriteLine("5. Create New Listing");
-            Console.WriteLine("6. Go back");
-            Console.WriteLine("0. Logout");
-            Console.Write("Select an option : ");
-
-            string choice = Console.ReadLine();
-
-            switch (choice)
-            {
-                case "0":
-                    string result = marketplace.Logout();
-                    Console.WriteLine(result);
-                    return;
-                case "1":
-                    Console.Clear();
-                    ShowMyListings(myListings);
-                    break;
-                case "2":
-                    Console.Clear();
-                    ShowTransactions(myPurchases, "Seller");
-                    break;
-                case "3":
-                    Console.Clear();
-                    ShowTransactions(mySales, "Buyer");
-                    break;
-                case "4":
-                    Console.Clear();
-                    ShowReviews(reviews);
-                    break;
-                case "5":
-                    Console.Clear();
-                    CreateListing();
-                    break;
-                case "6":
-                    return;
-            }
+            case Condition.New: return "Unused, still in original packaging";
+            case Condition.LikeNew: return "Used briefly, no visible wear";
+            case Condition.Good: return "Some signs of use, fully functional";
+            case Condition.Fair: return "Noticeable wear, but still works";
+            default: return "";
         }
     }
-
+    
     private void ShowMyListings(List<Listing> listings)
     {
         while (true)
         {
             Console.Clear();
+            Console.WriteLine("=== My Listings ===");
 
             if (listings.Count == 0)
             {
@@ -640,13 +844,18 @@ public class MarketplaceUI
                 return;
             }
 
-            Console.WriteLine($"{"#",-5} {"Title",-20} {"Price",-10} {"Status"}");
-            Console.WriteLine(new string('-', 60));
+            Console.WriteLine($"{"#",-5} {"Title",-30} {"Category",-25} {"Condition",-12} {"Price",-12} {"Status"}");
+            Console.WriteLine(new string('-', 90));
 
             for (int i = 0; i < listings.Count; i++)
             {
                 Console.WriteLine(
-                    $"{i + 1,-5} {listings[i].ItemName,-20} {listings[i].ItemPrice:N0,-10} {listings[i].Status}");
+                    $"{i + 1,-5} " +
+                    $"{listings[i].ItemName,-30} " +
+                    $"{FormatCategory(listings[i].Category),-25} " +
+                    $"{FormatCondition(listings[i].Condition),-12} " +
+                    $"{(listings[i].ItemPrice.ToString("N0") + " kr"),-12} " +
+                    $"{listings[i].Status}");
             }
 
             Console.WriteLine("\n0. Go back");
@@ -656,9 +865,7 @@ public class MarketplaceUI
             if (input == "0") return;
 
             if (int.TryParse(input, out int index) && index >= 1 && index <= listings.Count)
-            {
                 ManageListing(listings[index - 1]);
-            }
             else
             {
                 Console.WriteLine("Invalid selection, try again!");
@@ -670,9 +877,21 @@ public class MarketplaceUI
     {
         Console.Clear();
         Console.WriteLine($"=== {listing.ItemName} ===");
+        Console.WriteLine($"{"Category:",-15} {FormatCategory(listing.Category)}");
+        Console.WriteLine($"{"Condition:",-15} {FormatCondition(listing.Condition)}");
+        Console.WriteLine($"{"Description:",-15} {listing.ItemDescription}");
         Console.WriteLine($"{"Price:",-15} {listing.ItemPrice:N0} kr");
         Console.WriteLine($"{"Status:",-15} {listing.Status}");
         Console.WriteLine();
+        
+        if (listing.Status == ListingStatus.Sold)
+        {
+            Console.WriteLine("This listing has been sold and cannot be edited or deleted.");
+            Console.WriteLine("\n0. Go back");
+            Console.ReadLine();
+            return;
+        }
+        
         Console.WriteLine("1. Edit listing");
         Console.WriteLine("2. Delete listing");
         Console.WriteLine("0. Go back");
@@ -688,157 +907,6 @@ public class MarketplaceUI
                 break;
             case "0":
                 return;
-        }
-    }
-
-    public void CreateListing()
-{
-    Category[] categories = (Category[])Enum.GetValues(typeof(Category));
-    Condition[] conditions = (Condition[])Enum.GetValues(typeof(Condition));
-
-    Console.Clear();
-    Console.WriteLine("=== Create New Listing ===");
-    Console.WriteLine();
-
-    string name = "";
-    while (true)
-    {
-        Console.Write("Item name: ");
-        name = Console.ReadLine();
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            Console.WriteLine("Item name cannot be empty!");
-            continue;
-        }
-        if (name.Length > 50)
-        {
-            Console.WriteLine("Item name cannot exceed 50 characters!");
-            continue;
-        }
-        break;
-    }
-
-    string description = "";
-    while (true)
-    {
-        Console.Write("Item description: ");
-        description = Console.ReadLine();
-        if (string.IsNullOrWhiteSpace(description))
-        {
-            Console.WriteLine("Description cannot be empty!");
-            continue;
-        }
-        if (description.Length > 200)
-        {
-            Console.WriteLine("Description cannot exceed 200 characters!");
-            continue;
-        }
-        break;
-    }
-
-    double price = 0;
-    while (true)
-    {
-        Console.Write("Price (kr): ");
-        if (double.TryParse(Console.ReadLine(), out price) && price > 0)
-            break;
-        Console.WriteLine("Please enter a valid price!");
-    }
-
-    Category selectedCategory = categories[0];
-    Console.WriteLine("\nSelect a category:");
-    for (int i = 0; i < categories.Length; i++)
-        Console.WriteLine($"{i + 1,-5} {categories[i]}");
-
-    while (true)
-    {
-        Console.Write("Select: ");
-        string input = Console.ReadLine();
-        if (int.TryParse(input, out int index) && index >= 1 && index <= categories.Length)
-        {
-            selectedCategory = categories[index - 1];
-            break;
-        }
-        Console.WriteLine("Invalid selection, try again!");
-    }
-
-    Condition selectedCondition = conditions[0];
-    Console.WriteLine("\nSelect a condition:");
-    for (int i = 0; i < conditions.Length; i++)
-        Console.WriteLine($"{i + 1,-5} {conditions[i]}");
-
-    while (true)
-    {
-        Console.Write("Select: ");
-        string input = Console.ReadLine();
-        if (int.TryParse(input, out int index) && index >= 1 && index <= conditions.Length)
-        {
-            selectedCondition = conditions[index - 1];
-            break;
-        }
-        Console.WriteLine("Invalid selection, try again!");
-    }
-
-    try
-    {
-        string result = marketplace.CreateListing(name, description, price, selectedCategory, selectedCondition);
-        Console.WriteLine(result);
-    }
-    catch (Exception e)
-    {
-        Console.WriteLine(e.Message);
-    }
-    
-    Console.ReadKey();
-}
-
-    public void WriteReview(Transaction transaction)
-    {
-        string[] meanings = { "Very poor", "Poor", "Fair", "Good", "Very good", "Excellent" };
-        Console.Clear();
-        Console.WriteLine($"=== Writing review for {transaction.Listing.ItemName} ===");
-        Console.WriteLine($"To seller: {transaction.Seller.Username}");
-        Console.WriteLine();
-        Console.WriteLine("=== Rating guideline ===");
-        for (int i = 0; i < meanings.Length; i++)
-        {
-            Console.WriteLine($"{i + 1,-5} {meanings[i]}");
-        }
-
-        int rating = 0;
-        while (rating < 1 || rating > 6)
-        {
-            Console.Write("Select rating (1-6): ");
-            if (int.TryParse(Console.ReadLine(), out rating) && rating >= 1 && rating <= 6)
-                break;
-            Console.WriteLine("Invalid rating, try again!");
-            rating = 0;
-        }
-
-        Console.WriteLine("Add comment to your review:");
-        string comment = "";
-        while (true)
-        {
-            Console.Write("Add comment (max 100 chars, or press Enter to skip): ");
-            comment = Console.ReadLine();
-
-            if (comment.Length <= 100)
-                break;
-
-            Console.WriteLine($"Too long! {comment.Length}/100 characters. Try again!");
-        }
-
-        if (comment == "")
-            comment = "No comment left";
-
-        try
-        {
-            string result = marketplace.WriteReview(transaction, rating, comment);
-            Console.WriteLine(result);
-        }
-        catch (InvalidOperationException e)
-        {
-            Console.WriteLine(e.Message);
         }
     }
 
@@ -878,7 +946,7 @@ public class MarketplaceUI
         Category[] categories = (Category[])Enum.GetValues(typeof(Category));
         Console.WriteLine($"\nCurrent category: {listing.Category}");
         for (int i = 0; i < categories.Length; i++)
-            Console.WriteLine($"{i + 1,-5} {categories[i]}");
+            Console.WriteLine($"{i + 1,-5} {FormatCategory(categories[i])}");
 
         Category category = listing.Category;
         while (true)
@@ -899,7 +967,7 @@ public class MarketplaceUI
         Condition[] conditions = (Condition[])Enum.GetValues(typeof(Condition));
         Console.WriteLine($"\nCurrent condition: {listing.Condition}");
         for (int i = 0; i < conditions.Length; i++)
-            Console.WriteLine($"{i + 1,-5} {conditions[i]}");
+            Console.WriteLine($"{i + 1,-5} {conditions[i],-12} {GetConditionDescription(conditions[i])}");
 
         Condition condition = listing.Condition;
         while (true)
@@ -927,13 +995,13 @@ public class MarketplaceUI
             Console.WriteLine(e.Message);
         }
     }
-    
+
     private void DeleteListing(Listing listing)
     {
         Console.Clear();
         Console.WriteLine($"=== Delete {listing.ItemName} ===");
         Console.WriteLine("Are you sure you want to delete this listing? (y/n): ");
-    
+
         if (Console.ReadLine().ToLower() == "y")
         {
             try
@@ -946,5 +1014,38 @@ public class MarketplaceUI
                 Console.WriteLine(e.Message);
             }
         }
+    }
+    
+    private string ReadPassword()
+    {
+        string password = "";
+        ConsoleKeyInfo key;
+        do
+        {
+            key = Console.ReadKey(intercept: true);
+            if (key.Key != ConsoleKey.Enter)
+            {
+                password += key.KeyChar;
+                Console.Write("*");
+            }
+        } while (key.Key != ConsoleKey.Enter);
+
+        Console.WriteLine();
+        return password;
+    }
+
+    private string ValidateUsername(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "Username cannot be empty";
+        if (name.Length < 3) return "Username must be at least 3 characters";
+        if (name.Length > 20) return "Username cannot exceed 20 characters";
+        return null;
+    }
+
+    private string ValidatePassword(string password)
+    {
+        if (password.Length != 4) return "Password must be exactly 4 digits";
+        if (!password.All(char.IsDigit)) return "Password must contain numbers only";
+        return null;
     }
 }

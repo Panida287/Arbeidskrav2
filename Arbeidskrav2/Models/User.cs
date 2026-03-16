@@ -1,5 +1,8 @@
 namespace Arbeidskrav2.Models
 {
+    /// <summary>
+    /// Represents a registered user in the marketplace.
+    /// </summary>
     public class User
     {
         private string username;
@@ -10,8 +13,8 @@ namespace Arbeidskrav2.Models
 
         public User(string username, string password)
         {
-            this.username = username; // TODO: add null check and duplicate username validation
-            this.password = password; // TODO: add null, char, password matching and forgot password
+            this.username = username;
+            this.password = password;
             listings = new List<Listing>();
             transactions = new List<Transaction>();
             reviews = new List<Review>();
