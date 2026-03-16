@@ -305,6 +305,7 @@ public class MarketplaceUI
         return new string('★', fullStars) + new string('☆', emptyStars);
     }
     
+    //TODO : add option to review purchased items
     private void ShowTransactions(List<Transaction> transactions, string otherPartyLabel)
     {
         if (transactions.Count == 0)
@@ -415,4 +416,64 @@ public class MarketplaceUI
             }
         }
     }
+
+    public void CreateListing()
+    {
+        Category[] categories = (Category[])Enum.GetValues(typeof(Category));
+        Condition[] conditions = (Condition[])Enum.GetValues(typeof(Condition));
+        
+        Console.Clear();
+        Console.WriteLine("=== Create New Listing ===");
+        Console.WriteLine();
+        Console.WriteLine("Item name: ");
+        string name = Console.ReadLine(); //TODO limit char
+        Console.WriteLine("Item description: ");
+        string description = Console.ReadLine(); //TODO limit char
+        Console.WriteLine("Price (kr)");
+        double price = double.Parse(Console.ReadLine()); //TODO only legit int
+        Category selectedCategory = categories[0];
+        Condition selectedCondition = conditions[0];
+        
+        Console.Write("Select a category: ");
+        for (int i = 0; i < categories.Length; i++)
+            Console.WriteLine($"{i + 1,-5} {categories[i]}");
+        
+        while (true)
+        {
+            string input = Console.ReadLine();
+
+            if (int.TryParse(input, out int index) && index >= 1 && index <= categories.Length)
+            {
+                selectedCategory = categories[index - 1];
+                break;
+            }
+
+            Console.WriteLine("Invalid selection, try again!");
+        }
+        
+        
+        Console.WriteLine("Select a condition:");
+        for (int i = 0; i < categories.Length; i++)
+            Console.WriteLine($"{i + 1,-5} {conditions[i]}");
+        while (true)
+        {
+            Console.Write("Select a category: ");
+            string input = Console.ReadLine();
+
+            if (int.TryParse(input, out int index) && index >= 1 && index <= conditions.Length)
+            {
+                selectedCondition = conditions[index - 1];
+                break;
+            }
+
+            Console.WriteLine("Invalid selection, try again!");
+        }
+        
+        string result = marketplace.CreateListing(name, description, price, selectedCategory, selectedCondition);
+        Console.WriteLine(result);
+    }
+    
+    
+    
+    
 }
