@@ -238,6 +238,32 @@ public class MarketplaceUI
             }
         }
     }
+    
+    private string FormatCategory(Category category)
+    {
+        switch (category)
+        {
+            case Category.Electronics: return "Electronics";
+            case Category.ClothingAndAccessories: return "Clothing & Accessories";
+            case Category.FurnitureAndHome: return "Furniture & Home";
+            case Category.BooksAndMedia: return "Books & Media";
+            case Category.SportsAndOutdoors: return "Sports & Outdoors";
+            case Category.Other: return "Other";
+            default: return category.ToString();
+        }
+    }
+    
+    private string FormatCondition(Condition condition)
+    {
+        switch (condition)
+        {
+            case Condition.New: return "New";
+            case Condition.LikeNew: return "Like New";
+            case Condition.Good: return "Good";
+            case Condition.Fair: return "Fair";
+            default: return condition.ToString();
+        }
+    }
 
     public void ShowAllListings()
     {
@@ -266,8 +292,8 @@ public class MarketplaceUI
             Console.WriteLine(
                 $"{i + 1,-5} " +
                 $"{allListings[i].ItemName,-30} " +
-                $"{allListings[i].Category,-25} " +
-                $"{allListings[i].Condition,-15} " +
+                $"{FormatCategory(allListings[i].Category),-25} " +
+                $"{FormatCondition(allListings[i].Condition),-15} " +
                 $"{(allListings[i].ItemPrice.ToString("N0") + " kr"),-15} " +
                 $"{status}");
         }
@@ -301,12 +327,16 @@ public class MarketplaceUI
         }
 
         Console.WriteLine($"{"#",-5} {"Title",-30} {"Category",-25} {"Condition",-12} {"Price"}");
-        Console.WriteLine(new string('-', 80));
+        Console.WriteLine(new string('-', 90));
 
         for (int i = 0; i < listings.Count; i++)
         {
             Console.WriteLine(
-                $"{i + 1,-5} {listings[i].ItemName,-30} {listings[i].Category,-25} {listings[i].Condition,-12} {listings[i].ItemPrice:N0} kr");
+                $"{i + 1,-5} " +
+                $"{listings[i].ItemName,-30} " +
+                $"{FormatCategory(listings[i].Category),-25} " +
+                $"{FormatCondition(listings[i].Condition),-12} " +
+                $"{listings[i].ItemPrice:N0} kr");
         }
 
         Console.WriteLine("\n0. Go back");
@@ -341,8 +371,8 @@ public class MarketplaceUI
         Console.Clear();
         Console.WriteLine($"=== {listing.ItemName} ===");
         Console.WriteLine($"{"Seller:",-15} {listing.Seller.Username}");
-        Console.WriteLine($"{"Category:",-15} {listing.Category}");
-        Console.WriteLine($"{"Condition:",-15} {listing.Condition}");
+        Console.WriteLine($"{"Category:",-15} {FormatCategory(listing.Category)}");
+        Console.WriteLine($"{"Condition:",-15} {FormatCondition(listing.Condition)}");
         Console.WriteLine($"{"Price:",-15} {listing.ItemPrice:N0} kr");
         Console.WriteLine($"{"Description:",-15} {listing.ItemDescription}");
 
@@ -418,7 +448,7 @@ public class MarketplaceUI
         for (int i = 0; i < categories.Length; i++)
         {
             int count = marketplace.GetListingsByCategory(categories[i]).Count;
-            Console.WriteLine($"{i + 1,-5} {categories[i],-30:w} ({count} items)");
+            Console.WriteLine($"{i + 1,-5} {FormatCategory(categories[i]),-30} ({count} items)");
         }
 
         Console.WriteLine("\n0. Go back");
@@ -434,7 +464,7 @@ public class MarketplaceUI
             {
                 Category selected = categories[index - 1];
                 List<Listing> categoryListings = marketplace.GetListingsByCategory(selected);
-                Console.WriteLine($"\n=== {selected} Listings ===");
+                Console.WriteLine($"\n=== {FormatCategory(selected)} Listings ===");
                 ShowListingsAndSelect(categoryListings);
                 return;
             }
@@ -897,7 +927,7 @@ public class MarketplaceUI
         Category[] categories = (Category[])Enum.GetValues(typeof(Category));
         Console.WriteLine($"\nCurrent category: {listing.Category}");
         for (int i = 0; i < categories.Length; i++)
-            Console.WriteLine($"{i + 1,-5} {categories[i]}");
+            Console.WriteLine($"{i + 1,-5} {FormatCategory(categories[i])}");
 
         Category category = listing.Category;
         while (true)
