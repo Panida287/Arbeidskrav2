@@ -320,8 +320,8 @@ public class MarketplaceUI
                 return;
             }
 
-            Console.WriteLine($"{"#",-5} {"Item",-20} {"Price",-10} {otherPartyLabel,-15} {"Review"}");
-            Console.WriteLine(new string('-', 70));
+            Console.WriteLine($"{"#",-5} {"Item",-20} {"Price",-10} {"Date",-15} {otherPartyLabel,-15} {"Review"}");
+            Console.WriteLine(new string('-', 85));
 
             for (int i = 0; i < transactions.Count; i++)
             {
@@ -332,7 +332,13 @@ public class MarketplaceUI
                 string reviewed = transactions[i].Review != null ? "✓ Reviewed" : "Not reviewed";
 
                 Console.WriteLine(
-                    $"{i + 1,-5} {transactions[i].Listing.ItemName,-20} {transactions[i].Listing.ItemPrice:N0,-10} {otherParty,-15} {reviewed}");
+                    $"{i + 1,-5} " +
+                    $"{transactions[i].Listing.ItemName,-20} " +
+                    $"{transactions[i].Listing.ItemPrice:N0,-10} " +
+                    $"{transactions[i].Date.ToString("dd/MM/yyyy"),-15} " +
+                    $"{otherParty,-15} " +
+                    $"{reviewed}"
+                    );
             }
             if (otherPartyLabel == "Seller")
                 ShowUnreviewedAndSelect(transactions);
