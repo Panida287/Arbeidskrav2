@@ -23,9 +23,9 @@ public class MarketplaceUI
             Console.WriteLine("2. Register");
             Console.WriteLine("3. Visit Marketplace as guest");
             Console.Write("Select an option: ");
-        
+
             string choice = Console.ReadLine();
-        
+
             switch (choice)
             {
                 case "1":
@@ -43,7 +43,7 @@ public class MarketplaceUI
             }
         }
     }
-    
+
     private string ReadPassword()
     {
         string password = "";
@@ -57,6 +57,7 @@ public class MarketplaceUI
                 Console.Write("*");
             }
         } while (key.Key != ConsoleKey.Enter);
+
         Console.WriteLine();
         return password;
     }
@@ -64,23 +65,23 @@ public class MarketplaceUI
     public void Register()
     {
         Console.Clear();
-        Console.Write("Enter your name: ");  // TODO add char condition
+        Console.Write("Enter your name: "); // TODO add char condition
         string name = Console.ReadLine();
 
         Console.Write("Enter your password: "); // TODO add char condition
         string password = ReadPassword();
-        
+
         while (true)
         {
             Console.Write("Repeat your password: ");
-            string passwordRepeat = ReadPassword();  // TODO add char condition
+            string passwordRepeat = ReadPassword(); // TODO add char condition
 
             if (password == passwordRepeat)
                 break;
             Console.WriteLine("Passwords don't match, try again!");
             // TODO option to write new password
         }
-        
+
         string result = marketplace.Register(name, password);
         Console.WriteLine(result);
     }
@@ -90,16 +91,17 @@ public class MarketplaceUI
         Console.Clear();
         Console.Write("Enter username: ");
         string name = Console.ReadLine();
-        
+
         Console.Write("Enter password: ");
         string password = ReadPassword();
-        
+
         string result = marketplace.Login(name, password);
         Console.WriteLine(result);
-        
+
         if (result == "Logged in success")
             ShowLoggedInMenu(); //TODO write this method
     }
+
     public void ShowLoggedInMenu()
     {
         while (true)
@@ -110,9 +112,9 @@ public class MarketplaceUI
             Console.WriteLine("2. View my profile");
             Console.WriteLine("3. Logout");
             Console.Write("Select an option: ");
-        
+
             string choice = Console.ReadLine();
-        
+
             switch (choice)
             {
                 case "1":
@@ -144,9 +146,9 @@ public class MarketplaceUI
             Console.WriteLine("3. Search listings");
             Console.WriteLine("4. Go back");
             Console.Write("Select an option: ");
-        
+
             string choice = Console.ReadLine();
-        
+
             switch (choice)
             {
                 case "1":
@@ -168,7 +170,7 @@ public class MarketplaceUI
             }
         }
     }
-    
+
     private void ShowListingsAndSelect(List<Listing> listings)
     {
         if (listings.Count == 0)
@@ -183,7 +185,8 @@ public class MarketplaceUI
 
         for (int i = 0; i < listings.Count; i++)
         {
-            Console.WriteLine($"{i + 1,-5} {listings[i].ItemName,-20} {listings[i].Category,-15} {listings[i].Condition,-12} {listings[i].ItemPrice:N0} kr");
+            Console.WriteLine(
+                $"{i + 1,-5} {listings[i].ItemName,-20} {listings[i].Category,-15} {listings[i].Condition,-12} {listings[i].ItemPrice:N0} kr");
         }
 
         Console.WriteLine("\n0. Go back");
@@ -212,7 +215,7 @@ public class MarketplaceUI
         Console.WriteLine("=== Available Listings ===");
         ShowListingsAndSelect(availableListings);
     }
-    
+
     public void ShowListingDetails(Listing listing)
     {
         Console.Clear();
@@ -222,7 +225,7 @@ public class MarketplaceUI
         Console.WriteLine($"{"Condition:",-15} {listing.Condition}");
         Console.WriteLine($"{"Price:",-15} {listing.ItemPrice:N0} kr");
         Console.WriteLine($"{"Description:",-15} {listing.ItemDescription}");
-        
+
         Console.WriteLine("\n1. Buy this item");
         Console.WriteLine("0. Go back");
         Console.Write("Select an option: ");
@@ -240,6 +243,7 @@ public class MarketplaceUI
                     Console.WriteLine(result);
                     Console.ReadKey();
                 }
+
                 break;
             case "0":
                 return;
@@ -282,5 +286,16 @@ public class MarketplaceUI
 
             Console.WriteLine("Invalid selection, try again!");
         }
+    }
+
+    public void SearchListing()
+    {
+        Console.Clear();
+        Console.WriteLine("=== Search listings===");
+        Console.Write("What are you looking for?: ");
+        string searchTerm = Console.ReadLine();
+
+        List<Listing> searchedListing = marketplace.SearchListings(searchTerm);
+        ShowListingsAndSelect(searchedListing);
     }
 }
