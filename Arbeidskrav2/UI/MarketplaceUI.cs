@@ -6,13 +6,23 @@ namespace Arbeidskrav2.UI;
 
 public class MarketplaceUI
 {
+    
+    // ── Fields ──────────────────────────────────────────
     private Marketplace marketplace;
 
+    
+    // ── Constructor ─────────────────────────────────────
+    /// <summary>
+    /// Handles all console UI interactions for the marketplace application.
+    /// </summary>
     public MarketplaceUI(Marketplace marketplace)
     {
         this.marketplace = marketplace;
     }
-
+    
+    
+    // ── Public Methods ───────────────────────────────────
+    /// <summary>Displays the main menu for unauthenticated users.</summary>
     public void ShowMainMenu()
     {
         while (true)
@@ -44,6 +54,7 @@ public class MarketplaceUI
         }
     }
 
+    /// <summary>Handles user registration with username and password validation.</summary>
     public void Register()
     {
         Console.Clear();
@@ -94,6 +105,7 @@ public class MarketplaceUI
         Console.ReadKey();
     }
 
+    /// <summary>Handles user login with credentials validation.</summary>
     public void Login()
     {
         Console.Clear();
@@ -132,6 +144,7 @@ public class MarketplaceUI
         }
     }
 
+    /// <summary>Displays the main menu for logged in users.</summary>
     public void ShowLoggedInMenu()
     {
         while (true)
@@ -166,6 +179,7 @@ public class MarketplaceUI
         }
     }
 
+    /// <summary>Displays the marketplace browsing menu.</summary>
     public void ViewMarketplace()
     {
         while (true)
@@ -206,6 +220,7 @@ public class MarketplaceUI
         }
     }
 
+    /// <summary>Displays all listings including sold items.</summary>
     public void ShowAllListing()
     {
         List<Listing> availableListings = marketplace.GetAvailableListings();
@@ -214,6 +229,8 @@ public class MarketplaceUI
         ShowListingsAndSelect(availableListings);
     }
 
+    /// <summary>Displays the details of a specific listing.</summary>
+    /// <param name="listing">The listing to display.</param>
     public void ShowListingDetails(Listing listing)
     {
         Console.Clear();
@@ -286,6 +303,7 @@ public class MarketplaceUI
         }
     }
 
+    /// <summary>Displays listings filtered by category.</summary>
     public void BrowseByCategory()
     {
         Console.Clear();
@@ -321,6 +339,7 @@ public class MarketplaceUI
         }
     }
 
+    /// <summary>Allows user to search listings by keyword.</summary>
     public void SearchListing()
     {
         while (true)
@@ -343,6 +362,7 @@ public class MarketplaceUI
         }
     }
     
+    /// <summary>Displays the logged in user's profile and management options.</summary>
     public void ViewProfile()
     {
         while (true)
@@ -409,6 +429,7 @@ public class MarketplaceUI
         }
     }
 
+    /// <summary>Displays the logged in user's profile and management options.</summary>
     public void CreateListing()
     {
         Category[] categories = (Category[])Enum.GetValues(typeof(Category));
@@ -516,6 +537,8 @@ public class MarketplaceUI
         Console.ReadKey();
     }
 
+    /// <summary>Handles writing a review for a purchased item.</summary>
+    /// <param name="transaction">The transaction to review.</param>
     public void WriteReview(Transaction transaction)
     {
         string[] meanings = { "Very poor", "Poor", "Fair", "Good", "Very good", "Excellent" };
@@ -567,6 +590,7 @@ public class MarketplaceUI
     }
     
     
+    // ── Private Helpers ──────────────────────────────────
         
     private string FormatCategory(Category category)
     {
