@@ -206,10 +206,11 @@ public class MarketplaceUI
         {
             Console.Clear();
             Console.WriteLine("== Welcome to marketplace ==!");
-            Console.WriteLine("1. Browse all listings");
-            Console.WriteLine("2. Browse by category");
-            Console.WriteLine("3. Search listings");
-            Console.WriteLine("4. Go back");
+            Console.WriteLine("1. Browse available listings");
+            Console.WriteLine("2. Browse all listings");
+            Console.WriteLine("3. Browse by category");
+            Console.WriteLine("4. Search listings");
+            Console.WriteLine("5. Go back");
             Console.Write("Select an option: ");
 
             string choice = Console.ReadLine();
@@ -221,17 +222,73 @@ public class MarketplaceUI
                     ShowAllListing();
                     break;
                 case "2":
-                    BrowseByCategory();
+                    Console.Clear();
+                    ShowAllListings();
                     break;
                 case "3":
-                    SearchListing();
+                    BrowseByCategory();
                     break;
                 case "4":
+                    SearchListing();
+                    break;
+                case "5":
                     return;
                 default:
                     Console.WriteLine("Invalid option, try again!");
                     break;
             }
+        }
+    }
+    
+    public void ShowAllListings()
+    {
+        List<Listing> allListings = marketplace.GetAllListings();
+        Console.Clear();
+        Console.WriteLine("=== All Listings ===");
+    
+        if (allListings.Count == 0)
+        {
+            Console.WriteLine("No listings found. Press any key to go back.");
+            Console.ReadKey();
+            return;
+        }
+
+        Console.WriteLine($"{"#",-5} " +
+                          $"{"Title",-30} " +
+                          $"{"Category",-25} " +
+                          $"{"Condition",-15} " +
+                          $"{"Price",-15} " +
+                          $"{"Status"}");
+        Console.WriteLine(new string('-', 110));
+
+        for (int i = 0; i < allListings.Count; i++)
+        {
+            string status = allListings[i].Status == ListingStatus.Sold ? "SOLD" : "Available";
+            Console.WriteLine(
+                $"{i + 1,-5} " +
+                $"{allListings[i].ItemName,-30} " +
+                $"{allListings[i].Category,-25} " +
+                $"{allListings[i].Condition,-15} " +
+                $"{(allListings[i].ItemPrice.ToString("N0") + " kr"),-15} " +
+                $"{status}");
+        }
+
+        Console.WriteLine("\n0. Go back");
+    
+        while (true)
+        {
+            Console.Write("Select a listing to view: ");
+            string input = Console.ReadLine();
+
+            if (input == "0") return;
+
+            if (int.TryParse(input, out int index) && index >= 1 && index <= allListings.Count)
+            {
+                ShowListingDetails(allListings[index - 1]);
+                return;
+            }
+
+            Console.WriteLine("Invalid selection, try again!");
         }
     }
 
@@ -274,7 +331,7 @@ public class MarketplaceUI
 
     public void ShowAllListing()
     {
-        List<Listing> availableListings = marketplace.GetListings();
+        List<Listing> availableListings = marketplace.GetAvailableListings();
         Console.Clear();
         Console.WriteLine("=== Available Listings ===");
         ShowListingsAndSelect(availableListings);
@@ -292,7 +349,11 @@ public class MarketplaceUI
 
         Console.WriteLine();
     
-        if (marketplace.LoggedInUser != null)
+        if (listing.Status == ListingStatus.Sold)
+        {
+            Console.WriteLine("This item has been sold.");
+        }
+        else if (marketplace.LoggedInUser != null)
         {
             Console.WriteLine("1. Buy this item");
         }
@@ -300,7 +361,7 @@ public class MarketplaceUI
         {
             Console.WriteLine("1. Login to purchase this item");
         }
-    
+
         Console.WriteLine("0. Go back");
         Console.Write("Select an option: ");
 
@@ -309,6 +370,11 @@ public class MarketplaceUI
         switch (choice)
         {
             case "1":
+                if (listing.Status == ListingStatus.Sold)
+                {
+                    Console.WriteLine("Invalid option!");
+                    break;
+                }
                 if (marketplace.LoggedInUser == null)
                 {
                     Login();

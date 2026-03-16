@@ -115,8 +115,13 @@ public class Marketplace
             return "You have already reviewed this transaction";
         return null;
     }
+    
+    public List<Listing> GetAllListings()
+    {
+        return listings.ToList();
+    }
 
-    public List<Listing> GetListings()
+    public List<Listing> GetAvailableListings()
     {
         return listings.Where(l => l.Status == ListingStatus.Available).ToList();
     }

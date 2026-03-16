@@ -33,23 +33,23 @@ marketplace.Logout();
 // ── Erik buys from Maria ──
 marketplace.Login("erik", "1234");
 // get maria's listings
-var iphone = marketplace.GetListings().First(l => l.ItemName == "iPhone 14 Pro");
-var denim = marketplace.GetListings().First(l => l.ItemName == "Vintage Denim Jacket");
+var iphone = marketplace.GetAvailableListings().First(l => l.ItemName == "iPhone 14 Pro");
+var denim = marketplace.GetAvailableListings().First(l => l.ItemName == "Vintage Denim Jacket");
 marketplace.Purchase(iphone);   // erik buys iphone - will leave review
 marketplace.Purchase(denim);    // erik buys denim jacket - NO review left
 marketplace.Logout();
 
 // ── Anna buys from Erik ──
 marketplace.Login("anna", "1234");
-var macbook = marketplace.GetListings().First(l => l.ItemName == "MacBook Pro 2021");
-var harrypotter = marketplace.GetListings().First(l => l.ItemName == "Harry Potter Complete Set");
+var macbook = marketplace.GetAvailableListings().First(l => l.ItemName == "MacBook Pro 2021");
+var harrypotter = marketplace.GetAvailableListings().First(l => l.ItemName == "Harry Potter Complete Set");
 marketplace.Purchase(macbook);      // anna buys macbook - will leave review
 marketplace.Purchase(harrypotter);  // anna buys harry potter - NO review left
 marketplace.Logout();
 
 // ── Maria buys from Anna ──
 marketplace.Login("maria", "1234");
-var coffeeTable = marketplace.GetListings().First(l => l.ItemName == "Coffee Table");
+var coffeeTable = marketplace.GetAvailableListings().First(l => l.ItemName == "Coffee Table");
 marketplace.Purchase(coffeeTable);  // maria buys coffee table - will leave review
 marketplace.Logout();
 
