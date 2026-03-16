@@ -15,7 +15,7 @@ namespace Arbeidskrav2.Models
             if (reviewScore >= 1 && reviewScore <= 6)
                 this.reviewScore = reviewScore;
             else
-                this.reviewScore = 1; // TODO: throw exception later
+                this.reviewScore = 1;
             this.reviewText = reviewText;
         }
         
