@@ -147,6 +147,41 @@ public class Marketplace
         return "Review submitted successfully";
     }
     
+    public string EditListing(Listing listing, string name, string description, double price, Category category, Condition condition)
+    {
+        string error = CheckIfLoggedIn();
+        if (error != null)
+            return error;
+
+        if (listing.Seller != loggedInUser)
+            return "You can only edit your own listings";
+
+        if (!string.IsNullOrWhiteSpace(name))
+            listing.ItemName = name;
+        if (!string.IsNullOrWhiteSpace(description))
+            listing.ItemDescription = description;
+        if (price > 0)
+            listing.ItemPrice = price;
+        listing.Category = category;
+        listing.Condition = condition;
+
+        return "Listing updated successfully";
+    }
+
+    public string DeleteListing(Listing listing)
+    {
+        string error = CheckIfLoggedIn();
+        if (error != null)
+            return error;
+
+        if (listing.Seller != loggedInUser)
+            return "You can only delete your own listings";
+
+        listings.Remove(listing);
+        loggedInUser.Listings.Remove(listing);
+        return "Listing deleted successfully";
+    }
+    
     
 }
 

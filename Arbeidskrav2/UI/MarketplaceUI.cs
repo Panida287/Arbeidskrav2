@@ -305,7 +305,7 @@ public class MarketplaceUI
 
         return new string('★', fullStars) + new string('☆', emptyStars);
     }
-    
+
     private void ShowTransactions(List<Transaction> transactions, string otherPartyLabel)
     {
         while (true)
@@ -338,8 +338,9 @@ public class MarketplaceUI
                     $"{transactions[i].Date.ToString("dd/MM/yyyy"),-15} " +
                     $"{otherParty,-15} " +
                     $"{reviewed}"
-                    );
+                );
             }
+
             if (otherPartyLabel == "Seller")
                 ShowUnreviewedAndSelect(transactions);
 
@@ -353,7 +354,7 @@ public class MarketplaceUI
                 HandleReviewSelection(transactions);
         }
     }
-    
+
     private void ShowUnreviewedAndSelect(List<Transaction> transactions)
     {
         List<Transaction> unreviewed = transactions
@@ -469,13 +470,13 @@ public class MarketplaceUI
             }
         }
     }
-    
+
     private void ShowMyListings(List<Listing> listings)
     {
         while (true)
         {
             Console.Clear();
-        
+
             if (listings.Count == 0)
             {
                 Console.WriteLine("You have no listings.");
@@ -489,7 +490,8 @@ public class MarketplaceUI
 
             for (int i = 0; i < listings.Count; i++)
             {
-                Console.WriteLine($"{i + 1,-5} {listings[i].ItemName,-20} {listings[i].ItemPrice:N0,-10} {listings[i].Status}");
+                Console.WriteLine(
+                    $"{i + 1,-5} {listings[i].ItemName,-20} {listings[i].ItemPrice:N0,-10} {listings[i].Status}");
             }
 
             Console.WriteLine("\n0. Go back");
@@ -508,7 +510,7 @@ public class MarketplaceUI
             }
         }
     }
-    
+
     private void ManageListing(Listing listing)
     {
         Console.Clear();
@@ -524,10 +526,10 @@ public class MarketplaceUI
         switch (Console.ReadLine())
         {
             case "1":
-                // EditListing(listing);
+                EditListing(listing);
                 break;
             case "2":
-                // DeleteListing(listing);
+                DeleteListing(listing);
                 break;
             case "0":
                 return;
@@ -567,7 +569,6 @@ public class MarketplaceUI
 
             Console.WriteLine("Invalid selection, try again!");
         }
-
 
         Console.WriteLine("Select a condition:");
         for (int i = 0; i < categories.Length; i++)
@@ -631,5 +632,99 @@ public class MarketplaceUI
 
         string result = marketplace.WriteReview(transaction, rating, comment);
         Console.WriteLine(result);
+    }
+
+    private void EditListing(Listing listing)
+    {
+        Console.Clear();
+        Console.WriteLine($"=== Edit {listing.ItemName} ===");
+        Console.WriteLine("Press Enter to keep current value");
+        Console.WriteLine();
+
+        Console.Write($"Item name ({listing.ItemName}): ");
+        string name = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(name))
+            name = listing.ItemName;
+
+        Console.Write($"Description ({listing.ItemDescription}): ");
+        string description = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(description))
+            description = listing.ItemDescription;
+
+        double price = listing.ItemPrice;
+        while (true)
+        {
+            Console.Write($"Price ({listing.ItemPrice}): ");
+            string input = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(input))
+                break;
+            if (double.TryParse(input, out double newPrice) && newPrice > 0)
+            {
+                price = newPrice;
+                break;
+            }
+
+            Console.WriteLine("Invalid price, try again!");
+        }
+
+        Category[] categories = (Category[])Enum.GetValues(typeof(Category));
+        Console.WriteLine($"\nCurrent category: {listing.Category}");
+        for (int i = 0; i < categories.Length; i++)
+            Console.WriteLine($"{i + 1,-5} {categories[i]}");
+
+        Category category = listing.Category;
+        while (true)
+        {
+            Console.Write("Select category (or press Enter to keep current): ");
+            string input = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(input))
+                break;
+            if (int.TryParse(input, out int index) && index >= 1 && index <= categories.Length)
+            {
+                category = categories[index - 1];
+                break;
+            }
+
+            Console.WriteLine("Invalid selection, try again!");
+        }
+
+        Condition[] conditions = (Condition[])Enum.GetValues(typeof(Condition));
+        Console.WriteLine($"\nCurrent condition: {listing.Condition}");
+        for (int i = 0; i < conditions.Length; i++)
+            Console.WriteLine($"{i + 1,-5} {conditions[i]}");
+
+        Condition condition = listing.Condition;
+        while (true)
+        {
+            Console.Write("Select condition (or press Enter to keep current): ");
+            string input = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(input))
+                break;
+            if (int.TryParse(input, out int index) && index >= 1 && index <= conditions.Length)
+            {
+                condition = conditions[index - 1];
+                break;
+            }
+
+            Console.WriteLine("Invalid selection, try again!");
+        }
+
+        string result = marketplace.EditListing(listing, name, description, price, category, condition);
+        Console.WriteLine(result);
+        Console.ReadKey();
+    }
+    
+    private void DeleteListing(Listing listing)
+    {
+        Console.Clear();
+        Console.WriteLine($"=== Delete {listing.ItemName} ===");
+        Console.WriteLine("Are you sure you want to delete this listing? (y/n): ");
+    
+        if (Console.ReadLine().ToLower() == "y")
+        {
+            string result = marketplace.DeleteListing(listing);
+            Console.WriteLine(result);
+            Console.ReadKey();
+        }
     }
 }

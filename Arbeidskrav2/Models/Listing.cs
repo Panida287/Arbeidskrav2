@@ -27,12 +27,13 @@ namespace Arbeidskrav2.Models
         }
         
         public int ItemId { get => itemId; }
-        public string ItemName { get => itemName; }
-        public string ItemDescription { get => itemDescription; }
-        public double ItemPrice { get => itemPrice; }
-        public Category Category { get => category; }
-        public Condition Condition { get => condition; }
+        public string ItemName { get => itemName; set => itemName = value; }
+        public string ItemDescription { get => itemDescription; set => itemDescription = value; }
+        public double ItemPrice { get => itemPrice; set => itemPrice = value; }
+        public Category Category { get => category; set => category = value; }
+        public Condition Condition { get => condition; set => condition = value; }
         public ListingStatus Status { get => status; set => status = value; } 
         public User Seller { get => user; }
+        
     }
 }
