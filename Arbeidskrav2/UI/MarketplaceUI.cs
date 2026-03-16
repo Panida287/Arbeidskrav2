@@ -81,7 +81,6 @@ public class MarketplaceUI
     {
         Console.Clear();
         Console.WriteLine("=== Register ===");
-        Console.WriteLine("0. Go back");
         Console.WriteLine();
     
         string name = "";
@@ -132,7 +131,6 @@ public class MarketplaceUI
     {
         Console.Clear();
         Console.WriteLine("=== Login ===");
-        Console.WriteLine("0. Go back");
         Console.WriteLine();
         
         string name = "";
