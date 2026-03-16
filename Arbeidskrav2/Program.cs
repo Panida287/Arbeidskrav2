@@ -1,3 +1,7 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using Arbeidskrav2.Services;
+using Arbeidskrav2.UI;
 
-Console.WriteLine("Hello, World!");
+Marketplace marketplace = new Marketplace();
+MarketplaceUI ui = new MarketplaceUI(marketplace);
+
+ui.ShowMainMenu();
