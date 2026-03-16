@@ -501,8 +501,8 @@ public class MarketplaceUI
             if (transactions.Count == 0)
             {
                 Console.WriteLine("No transactions found.");
-                Console.WriteLine("\n0. Go back");
-                Console.ReadLine();
+                Console.WriteLine("Press any key to go back.");
+                Console.ReadKey();
                 return;
             }
 
@@ -587,7 +587,8 @@ public class MarketplaceUI
             string stars = GetStarRating(reviews[i].ReviewScore);
             Console.WriteLine($"{i + 1,-5} {stars,-10} {reviews[i].Buyer.Username,-15} {reviews[i].ReviewText}");
         }
-
+        
+        Console.WriteLine("\nPress any key to go back.");
         Console.ReadKey();
     }
 
@@ -667,8 +668,8 @@ public class MarketplaceUI
             if (listings.Count == 0)
             {
                 Console.WriteLine("You have no listings.");
-                Console.WriteLine("\n0. Go back");
-                Console.ReadLine();
+                Console.WriteLine("Press any key to go back.");
+                Console.ReadKey();
                 return;
             }
 
@@ -705,9 +706,21 @@ public class MarketplaceUI
     {
         Console.Clear();
         Console.WriteLine($"=== {listing.ItemName} ===");
+        Console.WriteLine($"{"Category:",-15} {FormatCategory(listing.Category)}");
+        Console.WriteLine($"{"Condition:",-15} {FormatCondition(listing.Condition)}");
+        Console.WriteLine($"{"Description:",-15} {listing.ItemDescription}");
         Console.WriteLine($"{"Price:",-15} {listing.ItemPrice:N0} kr");
         Console.WriteLine($"{"Status:",-15} {listing.Status}");
         Console.WriteLine();
+        
+        if (listing.Status == ListingStatus.Sold)
+        {
+            Console.WriteLine("This listing has been sold and cannot be edited or deleted.");
+            Console.WriteLine("Press any key to go back.");
+            Console.ReadKey();
+            return;
+        }
+        
         Console.WriteLine("1. Edit listing");
         Console.WriteLine("2. Delete listing");
         Console.WriteLine("0. Go back");
