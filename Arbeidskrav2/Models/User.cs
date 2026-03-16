@@ -1,5 +1,8 @@
 namespace Arbeidskrav2.Models
 {
+    /// <summary>
+    /// Represents a registered user in the marketplace.
+    /// </summary>
     public class User
     {
         private string username;

@@ -1,5 +1,8 @@
 namespace Arbeidskrav2.Models
 {
+    /// <summary>
+    /// Represents a purchase transaction between a buyer and a seller.
+    /// </summary>
     public class Transaction
     {
         private static int nextId = 1;

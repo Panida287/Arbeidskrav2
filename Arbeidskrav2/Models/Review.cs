@@ -1,5 +1,8 @@
 namespace Arbeidskrav2.Models
 {
+    /// <summary>
+    /// Represents a review left by a buyer after a transaction.
+    /// </summary>
     public class Review
     {
         private User buyer;
