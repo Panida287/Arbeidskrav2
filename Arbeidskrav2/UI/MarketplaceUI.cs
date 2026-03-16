@@ -242,6 +242,7 @@ public class MarketplaceUI
                     Console.WriteLine(result);
                     Console.ReadKey();
                 }
+
                 break;
             case "0":
                 return;
@@ -296,40 +297,86 @@ public class MarketplaceUI
         List<Listing> searchedListing = marketplace.SearchListings(searchTerm);
         ShowListingsAndSelect(searchedListing);
     }
-    
+
     private string GetStarRating(double rating)
     {
         int fullStars = (int)Math.Round(rating);
         int emptyStars = 6 - fullStars;
-    
+
         return new string('★', fullStars) + new string('☆', emptyStars);
     }
     
-    //TODO : add option to review purchased items
     private void ShowTransactions(List<Transaction> transactions, string otherPartyLabel)
     {
-        if (transactions.Count == 0)
+        while (true)
         {
-            Console.WriteLine("No transactions found. Press any key to go back.");
-            Console.ReadKey();
-            return;
-        }
+            Console.Clear();
 
-        Console.WriteLine($"{"#",-5} {"Item",-20} {"Price",-10} {otherPartyLabel}");
-        Console.WriteLine(new string('-', 60));
+            if (transactions.Count == 0)
+            {
+                Console.WriteLine("No transactions found.");
+                Console.WriteLine("\n0. Go back");
+                Console.ReadLine();
+                return;
+            }
 
-        for (int i = 0; i < transactions.Count; i++)
-        {
-            string otherParty = transactions[i].Buyer == marketplace.LoggedInUser 
-                ? transactions[i].Seller.Username 
-                : transactions[i].Buyer.Username;
-            
-            Console.WriteLine($"{i + 1,-5} {transactions[i].Listing.ItemName,-20} {transactions[i].Listing.ItemPrice:N0,-10} {otherParty}");
+            Console.WriteLine($"{"#",-5} {"Item",-20} {"Price",-10} {otherPartyLabel,-15} {"Review"}");
+            Console.WriteLine(new string('-', 70));
+
+            for (int i = 0; i < transactions.Count; i++)
+            {
+                string otherParty = transactions[i].Buyer == marketplace.LoggedInUser
+                    ? transactions[i].Seller.Username
+                    : transactions[i].Buyer.Username;
+
+                string reviewed = transactions[i].Review != null ? "✓ Reviewed" : "Not reviewed";
+
+                Console.WriteLine(
+                    $"{i + 1,-5} {transactions[i].Listing.ItemName,-20} {transactions[i].Listing.ItemPrice:N0,-10} {otherParty,-15} {reviewed}");
+            }
+            if (otherPartyLabel == "Seller")
+                ShowUnreviewedAndSelect(transactions);
+
+            Console.WriteLine("\n0. Go back");
+            Console.Write("Select: ");
+            string choice = Console.ReadLine();
+
+            if (choice == "0") return;
+
+            if (choice == "1" && otherPartyLabel == "Seller")
+                HandleReviewSelection(transactions);
         }
-    
-        Console.ReadKey();
     }
     
+    private void ShowUnreviewedAndSelect(List<Transaction> transactions)
+    {
+        List<Transaction> unreviewed = transactions
+            .Where(t => t.Review == null)
+            .ToList();
+
+        if (unreviewed.Count == 0) return;
+
+        Console.WriteLine();
+        Console.WriteLine($"You have {unreviewed.Count} unreviewed purchase(s).");
+        Console.WriteLine("1. Leave a review");
+    }
+
+    private void HandleReviewSelection(List<Transaction> transactions)
+    {
+        List<Transaction> unreviewed = transactions
+            .Where(t => t.Review == null)
+            .ToList();
+
+        Console.WriteLine("\nSelect item to review:");
+        for (int i = 0; i < unreviewed.Count; i++)
+            Console.WriteLine($"{i + 1,-5} {unreviewed[i].Listing.ItemName}");
+
+        Console.Write("Select: ");
+        if (int.TryParse(Console.ReadLine(), out int index) && index >= 1 && index <= unreviewed.Count)
+            WriteReview(unreviewed[index - 1]);
+    }
+
+
     private void ShowReviews(List<Review> reviews)
     {
         if (reviews.Count == 0)
@@ -421,7 +468,7 @@ public class MarketplaceUI
     {
         Category[] categories = (Category[])Enum.GetValues(typeof(Category));
         Condition[] conditions = (Condition[])Enum.GetValues(typeof(Condition));
-        
+
         Console.Clear();
         Console.WriteLine("=== Create New Listing ===");
         Console.WriteLine();
@@ -433,11 +480,11 @@ public class MarketplaceUI
         double price = double.Parse(Console.ReadLine()); //TODO only legit int
         Category selectedCategory = categories[0];
         Condition selectedCondition = conditions[0];
-        
+
         Console.Write("Select a category: ");
         for (int i = 0; i < categories.Length; i++)
             Console.WriteLine($"{i + 1,-5} {categories[i]}");
-        
+
         while (true)
         {
             string input = Console.ReadLine();
@@ -450,8 +497,8 @@ public class MarketplaceUI
 
             Console.WriteLine("Invalid selection, try again!");
         }
-        
-        
+
+
         Console.WriteLine("Select a condition:");
         for (int i = 0; i < categories.Length; i++)
             Console.WriteLine($"{i + 1,-5} {conditions[i]}");
@@ -468,7 +515,7 @@ public class MarketplaceUI
 
             Console.WriteLine("Invalid selection, try again!");
         }
-        
+
         string result = marketplace.CreateListing(name, description, price, selectedCategory, selectedCondition);
         Console.WriteLine(result);
     }
@@ -495,27 +542,24 @@ public class MarketplaceUI
             Console.WriteLine("Invalid rating, try again!");
             rating = 0;
         }
-        
+
         Console.WriteLine("Add comment to your review:");
         string comment = "";
         while (true)
         {
             Console.Write("Add comment (max 100 chars, or press Enter to skip): ");
             comment = Console.ReadLine();
-    
+
             if (comment.Length <= 100)
                 break;
-        
+
             Console.WriteLine($"Too long! {comment.Length}/100 characters. Try again!");
         }
 
         if (comment == "")
             comment = "No comment left";
-        
+
         string result = marketplace.WriteReview(transaction, rating, comment);
         Console.WriteLine(result);
     }
-
-
-
 }
