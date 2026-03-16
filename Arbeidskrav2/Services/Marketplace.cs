@@ -128,7 +128,10 @@ public class Marketplace
 
     public List<Listing> SearchListings(string searchTerm)
     {
-        return listings.Where(l => l.ItemName.Contains(searchTerm) || l.ItemDescription.Contains(searchTerm)).ToList();
+        return listings.Where(l => 
+                l.ItemName.ToLower().Contains(searchTerm.ToLower()) || 
+                l.ItemDescription.ToLower().Contains(searchTerm.ToLower()))
+            .ToList();
     }
 
     public List<Listing> GetListingsByCategory(Category category)

@@ -475,13 +475,24 @@ public class MarketplaceUI
 
     public void SearchListing()
     {
-        Console.Clear();
-        Console.WriteLine("=== Search listings===");
-        Console.Write("What are you looking for?: ");
-        string searchTerm = Console.ReadLine();
+        while (true)
+        {
+            Console.Clear();
+            Console.WriteLine("=== Search listings===");
+            Console.Write("What are you looking for? (or 0 to go back): ");
+            string searchTerm = Console.ReadLine();
+            
+            if (searchTerm == "0") return;
 
-        List<Listing> searchedListing = marketplace.SearchListings(searchTerm);
-        ShowListingsAndSelect(searchedListing);
+            List<Listing> searchedListing = marketplace.SearchListings(searchTerm);
+            if (searchedListing.Count == 0)
+            {
+                Console.WriteLine("No listings found. Press any key to search again.");
+                Console.ReadKey();
+                continue;
+            }
+            ShowListingsAndSelect(searchedListing);
+        }
     }
 
     private string GetStarRating(double rating)
@@ -501,8 +512,8 @@ public class MarketplaceUI
             if (transactions.Count == 0)
             {
                 Console.WriteLine("No transactions found.");
-                Console.WriteLine("Press any key to go back.");
-                Console.ReadKey();
+                Console.WriteLine("\n0. Go back");
+                Console.ReadLine();
                 return;
             }
 
@@ -587,8 +598,7 @@ public class MarketplaceUI
             string stars = GetStarRating(reviews[i].ReviewScore);
             Console.WriteLine($"{i + 1,-5} {stars,-10} {reviews[i].Buyer.Username,-15} {reviews[i].ReviewText}");
         }
-        
-        Console.WriteLine("\nPress any key to go back.");
+        Console.WriteLine("Press any key to go back.");
         Console.ReadKey();
     }
 
@@ -668,8 +678,8 @@ public class MarketplaceUI
             if (listings.Count == 0)
             {
                 Console.WriteLine("You have no listings.");
-                Console.WriteLine("Press any key to go back.");
-                Console.ReadKey();
+                Console.WriteLine("\n0. Go back");
+                Console.ReadLine();
                 return;
             }
 
@@ -716,8 +726,8 @@ public class MarketplaceUI
         if (listing.Status == ListingStatus.Sold)
         {
             Console.WriteLine("This listing has been sold and cannot be edited or deleted.");
-            Console.WriteLine("Press any key to go back.");
-            Console.ReadKey();
+            Console.WriteLine("\n0. Go back");
+            Console.ReadLine();
             return;
         }
         
