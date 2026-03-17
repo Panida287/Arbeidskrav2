@@ -313,16 +313,8 @@ public class MarketplaceUI
             return;
         }
 
-        string confirm = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title($"Are you sure you want to buy [bold]{listing.ItemName}[/]?")
-                .AddChoices("Yes", "No"));
-
-        if (confirm == "Yes")
-        {
-            string result = marketplace.Purchase(listing);
-            AnsiConsole.MarkupLine($"[green]{result}[/]");
-        }
+        if (choice == "Buy this item")
+            PurchaseListing(listing);
     }
 
     /// <summary>Displays listings filtered by category.</summary>
@@ -588,15 +580,21 @@ public class MarketplaceUI
         table.AddColumn("Category");
         table.AddColumn("Condition");
         table.AddColumn("Price");
+        table.AddColumn("Status"); 
 
         for (int i = 0; i < listings.Count; i++)
         {
+            string status = listings[i].Status == ListingStatus.Sold
+                ? "[red]SOLD[/]"
+                : "[green]Available[/]";
+            
             table.AddRow(
                 $"{i + 1}",
                 listings[i].ItemName,
                 FormatCategory(listings[i].Category),
                 FormatCondition(listings[i].Condition),
-                $"{listings[i].ItemPrice:N0} kr");
+                $"{listings[i].ItemPrice:N0} kr",
+                status);
         }
 
         AnsiConsole.Write(table);
@@ -615,6 +613,31 @@ public class MarketplaceUI
 
         int index = int.Parse(choice.Split('.')[0]) - 1;
         ShowListingDetails(listings[index]);
+    }
+    
+    // Handles the purchase flow for a listing including optional review
+    private void PurchaseListing(Listing listing)
+    {
+        string confirm = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title($"Are you sure you want to buy [bold]{listing.ItemName}[/]?")
+                .AddChoices("Yes", "No"));
+
+        if (confirm != "Yes") return;
+
+        string result = marketplace.Purchase(listing);
+        AnsiConsole.MarkupLine($"[green]{result}[/]");
+
+        Transaction transaction = marketplace.LoggedInUser.Transactions
+            .Last(t => t.Listing == listing);
+
+        string reviewChoice = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("Would you like to leave a review?\n[grey](You can always review later via Profile > My Purchases)[/]")
+                .AddChoices("Review now", "Review later"));
+
+        if (reviewChoice == "Review now")
+            WriteReview(transaction);
     }
 
     // Converts a numeric rating to a star display string using ★ and ☆ characters
@@ -823,7 +846,6 @@ public class MarketplaceUI
         if (listing.Status == ListingStatus.Sold)
         {
             AnsiConsole.MarkupLine("[red]This listing has been sold and cannot be edited or deleted.[/]");
-            AnsiConsole.Prompt(new SelectionPrompt<string>().AddChoices("Go back"));
             return;
         }
 
