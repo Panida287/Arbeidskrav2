@@ -3,6 +3,9 @@ using Arbeidskrav2.Models;
 using Arbeidskrav2.Enums;
 namespace Arbeidskrav2.Database;
 
+/// <summary>
+/// Handles all communication with the SQLite database, including saving and loading data.
+/// </summary>
 public class DatabaseService
 {
      private readonly string _connectionString;

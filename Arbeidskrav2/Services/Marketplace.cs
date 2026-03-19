@@ -80,13 +80,6 @@ public class Marketplace
         return "Logged in success";
     }
 
-    private string CheckIfLoggedIn()
-    {
-        if (loggedInUser == null)
-            return "You must be logged in";
-        return null;
-    }
-
     /// <summary>Logs out the currently logged in user.</summary>
     public string Logout()
     {
@@ -234,6 +227,15 @@ public class Marketplace
     
     // ── Private Helpers ──────────────────────
     
+    /// <summary>Checks if a user is currently logged in.</summary>
+    /// <returns>An error message if not logged in, otherwise null.</returns>
+    private string CheckIfLoggedIn()
+    {
+        if (loggedInUser == null)
+            return "You must be logged in";
+        return null;
+    }
+    
     /// <summary>Checks if a listing is available for purchase.</summary>
     /// <param name="listing">The listing to check.</param>
     /// <returns>An error message if not available, otherwise null.</returns>
@@ -244,9 +246,9 @@ public class Marketplace
         return null;
     }
 
-    /// <summary>Checks if the logged in user is the buyer of a transaction.</summary>
-    /// <param name="transaction">The transaction to check.</param>
-    /// <returns>An error message if the user is not the buyer, otherwise null.</returns>
+    /// <summary>Checks if the logged in user is the seller of a listing.</summary>
+    /// <param name="listing">The listing to check.</param>
+    /// <returns>An error message if the user is the seller, otherwise null.</returns>
     private string CheckIfSeller(Listing listing)
     {
         if (listing.Seller == loggedInUser)
@@ -254,9 +256,9 @@ public class Marketplace
         return null;
     }
     
-    /// <summary>Checks if a transaction has already been reviewed.</summary>
+    /// <summary>Checks if the logged in user is the buyer of a transaction.</summary>
     /// <param name="transaction">The transaction to check.</param>
-    /// <returns>An error message if already reviewed, otherwise null.</returns>
+    /// <returns>An error message if the user is not the buyer, otherwise null.</returns>
     private string CheckIfBuyer(Transaction transaction)
     {
         if (transaction.Buyer != loggedInUser)
