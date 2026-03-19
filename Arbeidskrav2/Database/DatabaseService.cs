@@ -108,10 +108,9 @@ public void SaveListing(Listing listing)
 
     var cmd = connection.CreateCommand();
     cmd.CommandText = @"
-        INSERT OR IGNORE INTO Listings (Id, Title, Description, Price, Category, Condition, Status, SellerUsername)
-        VALUES (@Id, @Title, @Description, @Price, @Category, @Condition, @Status, @SellerUsername);
+        INSERT OR IGNORE INTO Listings (Title, Description, Price, Category, Condition, Status, SellerUsername)
+        VALUES (@Title, @Description, @Price, @Category, @Condition, @Status, @SellerUsername);
     ";
-    cmd.Parameters.AddWithValue("@Id",             listing.Id);
     cmd.Parameters.AddWithValue("@Title",          listing.ItemName);
     cmd.Parameters.AddWithValue("@Description",    listing.ItemDescription);
     cmd.Parameters.AddWithValue("@Price",          listing.ItemPrice);
@@ -154,8 +153,8 @@ public void SaveTransaction(Transaction transaction)
 
     var cmd = connection.CreateCommand();
     cmd.CommandText = @"
-        INSERT OR IGNORE INTO Transactions (Id, ListingId, BuyerUsername, SellerUsername, Price, Date)
-        VALUES (@Id, @ListingId, @BuyerUsername, @SellerUsername, @Price, @Date);
+        INSERT OR IGNORE INTO Transactions (ListingId, BuyerUsername, SellerUsername, Price, Date)
+        VALUES (@ListingId, @BuyerUsername, @SellerUsername, @Price, @Date);
     ";
     cmd.Parameters.AddWithValue("@ListingId",      transaction.Listing.Id);
     cmd.Parameters.AddWithValue("@BuyerUsername",  transaction.Buyer.Username);
@@ -183,5 +182,81 @@ public void SaveReview(Review review)
     cmd.Parameters.AddWithValue("@Rating",         review.ReviewScore);
     cmd.Parameters.AddWithValue("@Comment",       review.ReviewText ?? (object)DBNull.Value);
     cmd.ExecuteNonQuery();
+}
+
+public List<(int Id, string ItemName, string ItemDescription, double ItemPrice, Category Category, Condition Condition, ListingStatus Status, string SellerUsername)> LoadListings()
+{
+    var result = new List<(int, string, string, double, Category, Condition, ListingStatus, string)>();
+
+    using var connection = new SqliteConnection(_connectionString);
+    connection.Open();
+
+    var cmd = connection.CreateCommand();
+    cmd.CommandText = "SELECT Id, Title, Description, Price, Category, Condition, Status, SellerUsername FROM Listings;";
+
+    using var reader = cmd.ExecuteReader();
+    while (reader.Read())
+    {
+        result.Add((
+            reader.GetInt32(0),
+            reader.GetString(1),
+            reader.GetString(2),
+            reader.GetDouble(3),
+            (Category)reader.GetInt32(4),
+            (Condition)reader.GetInt32(5),
+            (ListingStatus)reader.GetInt32(6),
+            reader.GetString(7)
+        ));
+    }
+    return result;
+}
+
+public List<(int Id, int ListingId, string BuyerUsername, string SellerUsername, double Price, DateTime Date)> LoadTransactions()
+{
+    var result = new List<(int, int, string, string, double, DateTime)>();
+
+    using var connection = new SqliteConnection(_connectionString);
+    connection.Open();
+
+    var cmd = connection.CreateCommand();
+    cmd.CommandText = "SELECT Id, ListingId, BuyerUsername, SellerUsername, Price, Date FROM Transactions;";
+
+    using var reader = cmd.ExecuteReader();
+    while (reader.Read())
+    {
+        result.Add((
+            reader.GetInt32(0),
+            reader.GetInt32(1),
+            reader.GetString(2),
+            reader.GetString(3),
+            reader.GetDouble(4),
+            DateTime.Parse(reader.GetString(5))
+        ));
+    }
+    return result;
+}
+
+public List<(int TransactionId, string BuyerUsername, string SellerUsername, int Rating, string Comment)> LoadReviews()
+{
+    var result = new List<(int, string, string, int, string)>();
+
+    using var connection = new SqliteConnection(_connectionString);
+    connection.Open();
+
+    var cmd = connection.CreateCommand();
+    cmd.CommandText = "SELECT TransactionId, BuyerUsername, SellerUsername, Rating, Comment FROM Reviews;";
+
+    using var reader = cmd.ExecuteReader();
+    while (reader.Read())
+    {
+        result.Add((
+            reader.GetInt32(0),
+            reader.GetString(1),
+            reader.GetString(2),
+            reader.GetInt32(3),
+            reader.IsDBNull(4) ? null : reader.GetString(4)
+        ));
+    }
+    return result;
 }
 }

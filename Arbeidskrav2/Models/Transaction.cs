@@ -23,6 +23,8 @@ namespace Arbeidskrav2.Models
         }
         
         public int Id { get => id; }
+        public void SetId(int id) { this.id = id; }
+        public void SetDate(DateTime date) { this.date = date; }
         public Listing Listing { get => listing; }
         public User Buyer { get => buyer; }
         public User Seller { get => seller; }

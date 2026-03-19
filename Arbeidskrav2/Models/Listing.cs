@@ -30,6 +30,7 @@ namespace Arbeidskrav2.Models
         }
         
         public int Id { get => id; }
+        public void SetId(int id) { this.id = id; }
         public string ItemName { get => itemName; set => itemName = value; }
         public string ItemDescription { get => itemDescription; set => itemDescription = value; }
         public double ItemPrice { get => itemPrice; set => itemPrice = value; }
