@@ -137,6 +137,7 @@ public class MarketplaceUI
         {
             string result = marketplace.Login(name, password);
             AnsiConsole.MarkupLine($"[green]{result}[/]");
+            AnsiConsole.WriteLine();
             ShowLoggedInMenu();
         }
         catch (InvalidOperationException e)
@@ -195,7 +196,7 @@ public class MarketplaceUI
             switch (choice)
             {
                 case "Browse available listings":
-                    ShowAllListing();
+                    ShowAvailableListings();
                     break;
                 case "Browse all listings":
                     ShowAllListings();
@@ -266,8 +267,8 @@ public class MarketplaceUI
         ShowListingDetails(allListings[index]);
     }
 
-    /// <summary>Displays all listings including sold items.</summary>
-    public void ShowAllListing()
+    /// <summary>Displays only available listings.</summary>
+    public void ShowAvailableListings()
     {
         List<Listing> availableListings = marketplace.GetAvailableListings();
         AnsiConsole.Clear();
@@ -391,7 +392,8 @@ public class MarketplaceUI
             string choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title($"[bold]=== Profile: {marketplace.LoggedInUser.Username} ===[/]\n" +
-                           $"Average Rating: {stars} ({averageRating}/6)\n")
+                           $"Average Rating: {stars} ({averageRating}/6)\n" +
+                           $"[bold]=== Manage My Account ===[/]")
                     .AddChoices(
                         $"My Listings ({myListings.Count})",
                         $"My Purchases ({myPurchases.Count})",
@@ -846,6 +848,8 @@ public class MarketplaceUI
         if (listing.Status == ListingStatus.Sold)
         {
             AnsiConsole.MarkupLine("[red]This listing has been sold and cannot be edited or deleted.[/]");
+            AnsiConsole.MarkupLine("[grey]Press any key to go back.[/]");
+            Console.ReadKey(true);
             return;
         }
 
