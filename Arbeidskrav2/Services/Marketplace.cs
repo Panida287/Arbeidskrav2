@@ -1,5 +1,6 @@
 using Arbeidskrav2.Enums;
 using Arbeidskrav2.Models;
+using Arbeidskrav2.Database;
 
 namespace Arbeidskrav2.Services;
 
@@ -9,6 +10,7 @@ namespace Arbeidskrav2.Services;
 public class Marketplace
 {
     // ── Fields ──────────────────────────────
+    private DatabaseService db;
     private List<User> users;
     private List<Listing> listings;
     private List<Transaction> transactions;
@@ -17,10 +19,12 @@ public class Marketplace
     // ── Constructor ─────────────────────────
     public Marketplace()
     {
+        db = new DatabaseService();
         users = new List<User>();
         listings = new List<Listing>();
         transactions = new List<Transaction>();
         loggedInUser = null;
+        LoadFromDatabase();
     }
     
     // ── Properties ──────────────────────────
@@ -55,6 +59,7 @@ public class Marketplace
             throw new InvalidOperationException("Username already taken");
 
         users.Add(new User(username, password));
+        db.SaveUser(username, password);
         return "User successfully registered";
     }
 
@@ -73,13 +78,6 @@ public class Marketplace
 
         loggedInUser = user;
         return "Logged in success";
-    }
-
-    private string CheckIfLoggedIn()
-    {
-        if (loggedInUser == null)
-            return "You must be logged in";
-        return null;
     }
 
     /// <summary>Logs out the currently logged in user.</summary>
@@ -106,6 +104,7 @@ public class Marketplace
         Listing listing = new Listing(name, description, price, category, condition, loggedInUser);
         listings.Add(listing);
         loggedInUser.AddListing(listing);
+        db.SaveListing(listing);
         return "Listing added successfully";
     }
     
@@ -154,6 +153,8 @@ public class Marketplace
         loggedInUser.AddTransaction(transaction);
         transactions.Add(transaction);
         listing.Seller.AddTransaction(transaction);
+        db.UpdateListingStatus(listing.Id, ListingStatus.Sold);
+        db.SaveTransaction(transaction);
         return "Item successfully purchased";
     }
 
@@ -170,9 +171,10 @@ public class Marketplace
         if (error != null)
             throw new InvalidOperationException(error);
 
-        Review review = new Review(score, reviewText, loggedInUser, transaction.Seller, transaction.Listing);
+        Review review = new Review(score, reviewText, loggedInUser, transaction.Seller, transaction.Listing, transaction.Id);
         transaction.AddReview(review);
         transaction.Seller.AddReview(review);
+        db.SaveReview(review);
         return "Review submitted successfully";
     }
 
@@ -218,11 +220,25 @@ public class Marketplace
 
         listings.Remove(listing);
         loggedInUser.Listings.Remove(listing);
+        db.DeleteListing(listing.Id);
         return "Listing deleted successfully";
     }
     
     
     // ── Private Helpers ──────────────────────
+    
+    /// <summary>Checks if a user is currently logged in.</summary>
+    /// <returns>An error message if not logged in, otherwise null.</returns>
+    private string CheckIfLoggedIn()
+    {
+        if (loggedInUser == null)
+            return "You must be logged in";
+        return null;
+    }
+    
+    /// <summary>Checks if a listing is available for purchase.</summary>
+    /// <param name="listing">The listing to check.</param>
+    /// <returns>An error message if not available, otherwise null.</returns>
     private string CheckIfAvailable(Listing listing)
     {
         if (listing.Status != ListingStatus.Available)
@@ -230,13 +246,19 @@ public class Marketplace
         return null;
     }
 
+    /// <summary>Checks if the logged in user is the seller of a listing.</summary>
+    /// <param name="listing">The listing to check.</param>
+    /// <returns>An error message if the user is the seller, otherwise null.</returns>
     private string CheckIfSeller(Listing listing)
     {
         if (listing.Seller == loggedInUser)
             return "You cannot buy your own listing";
         return null;
     }
-
+    
+    /// <summary>Checks if the logged in user is the buyer of a transaction.</summary>
+    /// <param name="transaction">The transaction to check.</param>
+    /// <returns>An error message if the user is not the buyer, otherwise null.</returns>
     private string CheckIfBuyer(Transaction transaction)
     {
         if (transaction.Buyer != loggedInUser)
@@ -244,11 +266,65 @@ public class Marketplace
         return null;
     }
 
+    /// <summary>Checks if a transaction has already been reviewed.</summary>
+    /// <param name="transaction">The transaction to check.</param>
+    /// <returns>An error message if already reviewed, otherwise null.</returns>
     private string CheckIfReviewed(Transaction transaction)
     {
         if (transaction.Review != null)
             return "You have already reviewed this transaction";
         return null;
     }
+    
+    /// <summary>Loads all persisted data from the SQLite database into memory on startup.</summary>
+    private void LoadFromDatabase()
+{
+    // Load users
+    foreach (var (username, password) in db.LoadUsers())
+    {
+        users.Add(new User(username, password));
+    }
+
+    // Load listings
+    foreach (var (id, itemName, itemDescription, itemPrice, category, condition, status, sellerUsername) in db.LoadListings())
+    {
+        User seller = users.FirstOrDefault(u => u.Username == sellerUsername);
+        if (seller == null) continue;
+
+        Listing listing = new Listing(itemName, itemDescription, itemPrice, category, condition, seller);
+        listing.SetId(id);
+        listings.Add(listing);
+        seller.AddListing(listing);
+    }
+
+    // Load transactions
+    foreach (var (id, listingId, buyerUsername, sellerUsername, price, date) in db.LoadTransactions())
+    {
+        User buyer = users.FirstOrDefault(u => u.Username == buyerUsername);
+        User seller = users.FirstOrDefault(u => u.Username == sellerUsername);
+        Listing listing = listings.FirstOrDefault(l => l.Id == listingId);
+        if (buyer == null || seller == null || listing == null) continue;
+
+        Transaction transaction = new Transaction(listing, buyer, seller);
+        transaction.SetId(id);
+        transaction.SetDate(date);
+        transactions.Add(transaction);
+        buyer.AddTransaction(transaction);
+        seller.AddTransaction(transaction);
+    }
+
+    // Load reviews
+    foreach (var (transactionId, buyerUsername, sellerUsername, rating, comment) in db.LoadReviews())
+    {
+        Transaction transaction = transactions.FirstOrDefault(t => t.Id == transactionId);
+        User buyer = users.FirstOrDefault(u => u.Username == buyerUsername);
+        User seller = users.FirstOrDefault(u => u.Username == sellerUsername);
+        if (transaction == null || buyer == null || seller == null) continue;
+
+        Review review = new Review(rating, comment, buyer, seller, transaction.Listing, transactionId);
+        transaction.AddReview(review);
+        seller.AddReview(review);
+    }
+}
     
 }

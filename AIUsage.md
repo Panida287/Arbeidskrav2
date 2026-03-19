@@ -39,3 +39,15 @@ The following prompts were used during development:
 > "How do I use SelectionPrompt with an enum type and display it with a custom formatter?"
 
 > "My password masking helper method — can Spectre.Console replace it entirely?"
+
+> "Why do we use parameterised queries like @Username instead of putting the value directly in the SQL string?"
+
+> "Why should I not include the Id column in an INSERT statement when using AUTOINCREMENT?"
+
+> "Why does the load order matter when loading data from the database on startup?"
+
+> "How do I store and read back nullable values like an optional review comment in SQLite?"
+
+> "How do I store C# enums and DateTime values in SQLite since it has no enum or date type?"
+
+> "How do I view my SQLite database tables inside JetBrains Rider?"

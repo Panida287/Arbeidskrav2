@@ -7,6 +7,8 @@ namespace Arbeidskrav2.Models
     /// </summary>
     public class Listing
     {
+        private static int nextId = 1;
+        private int id;
         private string itemName;
         private string itemDescription;
         private double itemPrice;
@@ -17,6 +19,7 @@ namespace Arbeidskrav2.Models
         
         public Listing(string itemName, string itemDescription, double itemPrice, Category category, Condition condition, User user)
         {
+            this.id = nextId++;
             this.itemName = itemName;
             this.itemDescription = itemDescription;
             this.itemPrice = itemPrice;
@@ -26,6 +29,8 @@ namespace Arbeidskrav2.Models
             this.user = user;
         }
         
+        public int Id { get => id; }
+        public void SetId(int id) { this.id = id; }
         public string ItemName { get => itemName; set => itemName = value; }
         public string ItemDescription { get => itemDescription; set => itemDescription = value; }
         public double ItemPrice { get => itemPrice; set => itemPrice = value; }
