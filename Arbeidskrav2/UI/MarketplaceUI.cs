@@ -846,6 +846,8 @@ public class MarketplaceUI
         if (listing.Status == ListingStatus.Sold)
         {
             AnsiConsole.MarkupLine("[red]This listing has been sold and cannot be edited or deleted.[/]");
+            AnsiConsole.MarkupLine("[grey]Press any key to go back.[/]");
+            Console.ReadKey(true);
             return;
         }
 
