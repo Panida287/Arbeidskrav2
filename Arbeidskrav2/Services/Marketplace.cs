@@ -234,6 +234,9 @@ public class Marketplace
     
     // ── Private Helpers ──────────────────────
     
+    /// <summary>Checks if a listing is available for purchase.</summary>
+    /// <param name="listing">The listing to check.</param>
+    /// <returns>An error message if not available, otherwise null.</returns>
     private string CheckIfAvailable(Listing listing)
     {
         if (listing.Status != ListingStatus.Available)
@@ -241,13 +244,19 @@ public class Marketplace
         return null;
     }
 
+    /// <summary>Checks if the logged in user is the buyer of a transaction.</summary>
+    /// <param name="transaction">The transaction to check.</param>
+    /// <returns>An error message if the user is not the buyer, otherwise null.</returns>
     private string CheckIfSeller(Listing listing)
     {
         if (listing.Seller == loggedInUser)
             return "You cannot buy your own listing";
         return null;
     }
-
+    
+    /// <summary>Checks if a transaction has already been reviewed.</summary>
+    /// <param name="transaction">The transaction to check.</param>
+    /// <returns>An error message if already reviewed, otherwise null.</returns>
     private string CheckIfBuyer(Transaction transaction)
     {
         if (transaction.Buyer != loggedInUser)
@@ -255,6 +264,9 @@ public class Marketplace
         return null;
     }
 
+    /// <summary>Checks if a transaction has already been reviewed.</summary>
+    /// <param name="transaction">The transaction to check.</param>
+    /// <returns>An error message if already reviewed, otherwise null.</returns>
     private string CheckIfReviewed(Transaction transaction)
     {
         if (transaction.Review != null)
@@ -262,6 +274,7 @@ public class Marketplace
         return null;
     }
     
+    /// <summary>Loads all persisted data from the SQLite database into memory on startup.</summary>
     private void LoadFromDatabase()
 {
     // Load users
