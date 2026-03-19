@@ -195,7 +195,7 @@ public class MarketplaceUI
             switch (choice)
             {
                 case "Browse available listings":
-                    ShowAllListing();
+                    ShowAvailableListings();
                     break;
                 case "Browse all listings":
                     ShowAllListings();
@@ -266,8 +266,8 @@ public class MarketplaceUI
         ShowListingDetails(allListings[index]);
     }
 
-    /// <summary>Displays all listings including sold items.</summary>
-    public void ShowAllListing()
+    /// <summary>Displays only available listings.</summary>
+    public void ShowAvailableListings()
     {
         List<Listing> availableListings = marketplace.GetAvailableListings();
         AnsiConsole.Clear();
