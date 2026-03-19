@@ -4,17 +4,18 @@ A command-line marketplace application for buying and selling second-hand items,
 
 ## Description
 
-This C# console application simulates an online second-hand marketplace. Users can register accounts, list items for sale, browse and search listings, purchase items, and leave reviews for sellers.
+This C# console application simulates an online second-hand marketplace. Users can register accounts, list items for sale, browse and search listings, purchase items, and leave reviews for sellers. The application uses [Spectre.Console](https://spectreconsole.net/) for an enhanced terminal UI with arrow-key navigation, colored output and formatted tables.
 
 ### Features
 
+- Arrow-key navigable menus powered by Spectre.Console
 - Register and login with password masking (4-digit PIN)
 - Browse available listings or all listings including sold items
 - Browse listings by category with item count
 - Search listings by keyword (case insensitive)
 - View listing details and purchase items
-- Leave reviews (1-6 rating) after purchasing
-- View purchase and sales history with dates
+- Leave a review immediately after purchase or later from profile
+- View purchase and sales history with dates and review status
 - Create, edit and delete your own listings
 - View profile with average star rating display
 - Guest browsing without login
@@ -58,37 +59,43 @@ Arbeidskrav2/
 │   └── MarketplaceUI.cs     # All console input/output and menus
 ├── Program.cs               # Entry point and seed data
 └── README.md
+└── AIUsage.md
 ```
 
 ## Application Sitemap
 
 ```
 === Main Menu ===
-├── 1. Login
+├── Login
 │   └── → Logged In Menu
-│       ├── 1. Enter Marketplace
-│       │   ├── 1. Browse available listings
-│       │   │   └── Select listing → Listing Details → Buy
-│       │   ├── 2. Browse all listings (including sold)
-│       │   │   └── Select listing → Listing Details → Buy (if available)
-│       │   ├── 3. Browse by category
-│       │   │   └── Select category → Listings → Listing Details → Buy
-│       │   └── 4. Search listings
-│       │       └── Results → Listing Details → Buy
-│       ├── 2. View Profile
-│       │   ├── 1. My Listings → Select listing → Edit / Delete
-│       │   ├── 2. My Purchases → Leave review (if unreviewed)
-│       │   ├── 3. Listings Sold
-│       │   ├── 4. Reviews Received
-│       │   ├── 5. Create New Listing
-│       │   └── 0. Logout
-│       └── 3. Logout
-├── 2. Register
-└── 3. Visit Marketplace as guest
-    ├── 1. Browse available listings
-    ├── 2. Browse all listings
-    ├── 3. Browse by category
-    └── 4. Search listings
+│       ├── Enter Marketplace
+│       │   ├── Browse available listings
+│       │   │   └── Select listing → Listing Details
+│       │   │       ├── Buy → Confirm → Review now / Review later
+│       │   │       └── Go back
+│       │   ├── Browse all listings (including sold)
+│       │   │   └── Select listing → Listing Details
+│       │   │       ├── Buy (if available) → Confirm → Review now / Review later
+│       │   │       └── Go back
+│       │   ├── Browse by category
+│       │   │   └── Select category → Listings → Listing Details
+│       │   └── Search listings
+│       │       └── Results → Listing Details
+│       ├── View Profile
+│       │   ├── My Listings → Select listing → Edit / Delete (if available)
+│       │   ├── My Purchases → Leave review (if unreviewed)
+│       │   ├── Listings Sold
+│       │   ├── Reviews Received
+│       │   ├── Create New Listing
+│       │   ├── Go back
+│       │   └── Logout
+│       └── Logout
+├── Register
+└── Visit Marketplace as guest
+    ├── Browse available listings
+    ├── Browse all listings
+    ├── Browse by category
+    └── Search listings
         └── Select listing → View Details → Login to purchase
 ```
 
@@ -118,10 +125,21 @@ Used for `Category`, `Condition` and `ListingStatus` to represent fixed sets of 
 Used extensively for filtering listings by category, searching by keyword, calculating average ratings, finding unreviewed transactions and sorting data.
 
 **Exception Handling**
-`try/catch` blocks are used in all UI methods. The `Marketplace` service throws `InvalidOperationException` for business rule violations such as buying your own listing, duplicate usernames, and reviewing the same transaction twice.
+`try/catch` blocks are used in UI methods. The `Marketplace` service throws `InvalidOperationException` for business rule violations such as buying your own listing, duplicate usernames, and reviewing the same transaction twice.
 
 ### Separation of Concerns
-Console input/output is kept entirely in `MarketplaceUI`. Model classes contain only data and simple helper methods. Business logic lives in `Marketplace`. This means if the UI ever changes, the logic doesn't need to be touched.
+Console input/output is kept entirely in `MarketplaceUI`. Model classes contain only data and simple helper methods. Business logic lives in `Marketplace`.
+
+### Spectre.Console
+After completing the core application with standard `Console.WriteLine` and `Console.ReadLine`, the UI was refactored to use Spectre.Console. This was an interesting experience because:
+
+- Arrow-key `SelectionPrompt` replaced all number-based menus, removing the need for manual input parsing and invalid option handling
+- `TextPrompt` with built-in `.Validate()` replaced manual while loops for input validation
+- `.Secret()` on `TextPrompt` replaced the custom `ReadPassword()` helper method entirely
+- `SelectionPrompt<Category>` and `SelectionPrompt<Condition>` with `.UseConverter()` replaced manual enum display loops
+- The `ShowUnreviewedAndSelect` helper method was deleted entirely as Spectre handled the logic more cleanly
+
+Building the original version first was valuable — understanding why validation loops and password masking are needed made it clearer what Spectre.Console was actually solving. The refactoring process itself was a good exercise in recognizing when a library can simplify your code.
 
 ### Helper Methods
 Private helper methods like `CheckIfLoggedIn()`, `CheckIfAvailable()` and `CheckIfSeller()` are used in `Marketplace` to avoid deeply nested if statements and keep public methods clean.
@@ -132,6 +150,8 @@ Private helper methods like `CheckIfLoggedIn()`, `CheckIfAvailable()` and `Check
 - **LINQ**: How to filter, sort and transform collections cleanly instead of manual loops
 - **Exception Handling**: The difference between returning error strings and throwing exceptions, and when each is appropriate
 - **Separation of concerns**: Keeping UI code separate from business logic makes the code much easier to maintain
+- **Third-party libraries**: How to install a NuGet package and integrate Spectre.Console into an existing project
+- **Refactoring**: How to improve existing working code — and that building the naive version first is often the best way to understand what you actually need
 - **Git workflow**: Using branches, meaningful commit messages and pull requests
 
 ## Challenges I Faced
@@ -144,35 +164,7 @@ Private helper methods like `CheckIfLoggedIn()`, `CheckIfAvailable()` and `Check
 
 4. **Navigation flow**: Managing multiple menus in a console app without losing track of where the user is was tricky. Using `return` vs `break` correctly in nested loops required careful thinking.
 
-## AI Usage
-
-This project was developed with assistance from Claude (Anthropic).
-
-> "What is encapsulation and why do we use private fields with public properties instead of just making everything public?"
-
-> "What is the difference between get and set in properties? And what is the shorthand auto property?"
-
-> "What is the value keyword inside set?"
-
-> "What does static mean and when do I use it?"
-
-> "What is the difference between List and Dictionary and when do I use each one?"
-
-> "Can you explain LINQ and lambda expressions? What does the => mean?"
-
-> "What is the difference between abstract and virtual?"
-
-> "What is an interface and why would I use it over inheritance?"
-
-> "What is the difference between throwing an exception and returning an error string?"
-
-> "How do I use git via terminal instead of GitHub Desktop?"
-
-> "Can you help me fix my commit msgs to be more detailed."
-
-> "This is my terminal output design, do you have suggestion to make it look better or easier to use."
-
-> "Help me refine my XML documentation comments for my public methods and properties."
+5. **Spectre.Console integration**: Replacing the existing UI required understanding both the old code and the new library at the same time. Some patterns like `SelectionPrompt<EnumType>` with `.UseConverter()` took experimentation to get right.
 
 **Author**: Panida Finstad
 **Course**: Backend Programming Year 1, Gokstad Academy
