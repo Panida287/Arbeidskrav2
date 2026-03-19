@@ -223,6 +223,7 @@ public class Marketplace
     
     
     // ── Private Helpers ──────────────────────
+    
     private string CheckIfAvailable(Listing listing)
     {
         if (listing.Status != ListingStatus.Available)
