@@ -33,13 +33,11 @@ The application starts with pre-loaded test data so you can explore all features
 
 ## Test Accounts
 
-All accounts use password: **1234**
-
-| Username | Listings | Sold | Purchased | Reviews Received | Unreviewed Purchases |
-|---|---|---|---|---|---|
-| maria | 3 (1 sold) | 1 | 1 | 1 (avg ★★★★☆☆) | 0 |
-| erik | 3 (2 sold) | 2 | 2 | 2 (avg ★★★★★☆) | 1 (denim jacket) |
-| anna | 2 (1 sold) | 1 | 2 | 1 (avg ★★★★☆☆) | 1 (harry potter) |
+| Username | Password| Listings | Sold | Purchased | Reviews Received | Unreviewed Purchases |
+|---|---|---|---|---|---|---|
+| maria | 1234 | 3 (1 sold) | 1 | 1 | 1 (avg ★★★★☆☆) | 0 |
+| erik | 1234 | 3 (2 sold) | 2 | 2 | 2 (avg ★★★★★☆) | 1 (denim jacket) |
+| anna | 1234 | 2 (1 sold) | 1 | 2 | 1 (avg ★★★★☆☆) | 1 (harry potter) |
 
 You can also register a new account from the main menu.
 
