@@ -137,6 +137,7 @@ public class MarketplaceUI
         {
             string result = marketplace.Login(name, password);
             AnsiConsole.MarkupLine($"[green]{result}[/]");
+            AnsiConsole.WriteLine();
             ShowLoggedInMenu();
         }
         catch (InvalidOperationException e)
@@ -391,7 +392,8 @@ public class MarketplaceUI
             string choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title($"[bold]=== Profile: {marketplace.LoggedInUser.Username} ===[/]\n" +
-                           $"Average Rating: {stars} ({averageRating}/6)\n")
+                           $"Average Rating: {stars} ({averageRating}/6)\n" +
+                           $"[bold]=== Manage My Account ===[/]")
                     .AddChoices(
                         $"My Listings ({myListings.Count})",
                         $"My Purchases ({myPurchases.Count})",
