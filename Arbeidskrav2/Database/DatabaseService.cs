@@ -255,7 +255,7 @@ public List<(int TransactionId, string BuyerUsername, string SellerUsername, int
             reader.GetString(2),
             reader.GetInt32(3),
             reader.IsDBNull(4) ? null : reader.GetString(4)
-        ));
+        )!);
     }
     return result;
 }
