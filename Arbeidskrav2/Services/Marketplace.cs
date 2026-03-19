@@ -170,7 +170,7 @@ public class Marketplace
         if (error != null)
             throw new InvalidOperationException(error);
 
-        Review review = new Review(score, reviewText, loggedInUser, transaction.Seller, transaction.Listing);
+        Review review = new Review(score, reviewText, loggedInUser, transaction.Seller, transaction.Listing, transaction.Id);
         transaction.AddReview(review);
         transaction.Seller.AddReview(review);
         return "Review submitted successfully";
